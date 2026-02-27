@@ -1,0 +1,25 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+  command = "echo 'No build required - static site'"
+
+# Redirect /0x... addresses to garden rendering function
+[[redirects]]
+  from = "/0x*"
+  to = "/.netlify/functions/garden/:splat"
+  status = 200
+
+# Serve index.html for root
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    access-control-allow-origin = "*"
+    cache-control = "public, max-age=0, must-revalidate"
+
+[functions]
+  node_bundler = "esbuild"

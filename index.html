@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cstyle%3E%20text%20%7B%20fill:%20%23000;%20%7D%20@media%20(prefers-color-scheme:%20dark)%20%7B%20text%20%7B%20fill:%20%23fff;%20%7D%20%7D%20%3C/style%3E%3Ctext%20y='.9em'%20font-size='90'%3E%20%E2%9A%98%20%3C/text%3E%3C/svg%3E%0A">
+<title>Garden Factory</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html { -moz-text-size-adjust: none; -webkit-text-size-adjust: none; text-size-adjust: none; }
+html, body { margin: 0; padding: 0; }
+body { min-height: 100vh; background: #ffffff; color: #000000; }
+html,body,pre,button,input,textarea,select { font-family: "Courier New", "Courier", monospace; font-size: 15px; line-height: 1.3; }
+h1,h2,h3,h4,h5,h6 { margin: 0; font-size: inherit; font-style: inherit; font-weight: inherit; }
+p { margin: 0; }
+.c { max-width: 860px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
+.c.essay { max-width: 620px; }
+a { color: inherit; text-decoration: underline; }
+.w { position: relative; min-height: 100vh; display: flex; align-items: center; padding: 10em 0; }
+.s { width: 100%; max-width: 860px; }
+.s:not(.g) a { max-width: 100%; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f { position: fixed; bottom: 1em; right: 1.3em; z-index: 10; }
+.p { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-size: 1.4em; }
+.field { white-space: pre; margin: 0 auto; max-width: 100%; }
+.a { overflow: hidden; display: inline-block; max-width: 100%; text-overflow: ellipsis; vertical-align: middle; }
+.form-row { margin: 0.6em 0; display: flex; align-items: baseline; gap: 0; flex-wrap: wrap; }
+.form-row label { flex-shrink: 0; opacity: 0.5; min-width: 14ch; }
+.form-row input, .form-row select { flex: 1; min-width: 0; background: transparent; border: none; border-bottom: 1px solid rgba(0,0,0,0.2); color: inherit; font: inherit; padding: 2px 0; outline: none; border-radius: 0; }
+.form-row input:focus { border-bottom-color: rgba(0,0,0,0.6); }
+.form-row input::placeholder { color: rgba(0,0,0,0.3); }
+textarea.essay-input { width: 100%; min-height: 40vh; background: transparent; border: 1px solid rgba(0,0,0,0.15); color: inherit; font: inherit; padding: 1em; outline: none; resize: vertical; border-radius: 0; }
+textarea.essay-input:focus { border-color: rgba(0,0,0,0.4); }
+textarea.essay-input::placeholder { color: rgba(0,0,0,0.3); }
+.btn { background: transparent; border: 1px solid rgba(0,0,0,0.4); color: inherit; font: inherit; padding: 0.4em 1.5em; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn:hover { border-color: #000000; }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn:disabled:hover { border-color: rgba(0,0,0,0.4); }
+.status-line { margin: 1.5em 0; padding: 0.8em 0; border-top: 1px solid rgba(0,0,0,0.1); }
+.status-line.error { color: #ff6b6b; }
+.status-line.success { color: #69db7c; }
+.status-line a { color: inherit; }
+.preview-box { border: 1px solid rgba(0,0,0,0.15); padding: 2em; margin: 1.5em 0; min-height: 10em; }
+.preview-box h1 { font-size: 1.4em; font-weight: bold; margin-bottom: 0.5em; }
+.preview-box h2 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.4em; }
+.preview-box h3 { font-size: 1.1em; font-weight: bold; margin-bottom: 0.3em; }
+.preview-box p { margin-bottom: 0.8em; }
+.preview-box blockquote { border-left: 2px solid rgba(0,0,0,0.3); padding-left: 1em; margin: 0.8em 0; opacity: 0.8; }
+.preview-box ul, .preview-box ol { padding-left: 2em; margin: 0.5em 0; }
+.preview-box em { font-style: italic; }
+.preview-box strong { font-weight: bold; }
+.preview-box code { background: rgba(0,0,0,0.08); padding: 0.1em 0.3em; }
+.preview-box pre code { display: block; padding: 1em; margin: 0.5em 0; overflow-x: auto; background: rgba(0,0,0,0.05); }
+.preview-box a { color: inherit; }
+.preview-box hr { border: none; border-top: 1px solid rgba(0,0,0,0.2); margin: 1.5em 0; }
+.nav-links a { margin-right: 2em; }
+.wallet-line { opacity: 0.5; margin: 1em 0; }
+.wallet-line a { cursor: pointer; }
+.garden-entry { margin: 2em 0; }
+.hidden { display: none !important; }
+.loading { opacity: 0.4; }
+.color-input-wrap { display: flex; align-items: center; gap: 0.5em; flex: 1; }
+.color-input-wrap input[type="text"] { flex: 1; }
+.color-input-wrap input[type="color"] { width: 24px; height: 20px; padding: 0; border: 1px solid rgba(0,0,0,0.2); background: transparent; cursor: pointer; border-radius: 0; }
+.garden-select { background: #ffffff; border: 1px solid rgba(0,0,0,0.2); color: inherit; font: inherit; padding: 2px 4px; flex: 1; border-radius: 0; }
+.garden-select option { background: #ffffff; color: #000000; }
+.separator { opacity: 0.15; margin: 2em 0; }
+@media (max-width: 600px) { .form-row { flex-direction: column; } .form-row label { min-width: auto; margin-bottom: 0.2em; } }
+</style>
+</head>
+<body>
+
+<!-- INDEX -->
+<div id="view-index">
+<div class="c">
+  <div class="w" id="hi"><div class="s g">
+    <div id="symbol-field-top"><pre class="garden">   &#x2698;                    &#x2698;
+             &#x2698;
+&#x2698;                       &#x2698;         &#x2698;
+        &#x2698;         &#x2698;
+   &#x2698;                          &#x2698;
+</pre></div>
+    <br><br><h1>Garden Factory</h1><br><br>
+    <div id="garden-list" class="loading">loading gardens...</div>
+    <br><br>
+    <p id="factory-address" style="font-size:0.9em"></p>
+    <br><br>
+    <div id="symbol-field-bottom"><pre class="garden">      &#x2698;                      &#x2698;
+            &#x2698;
+ &#x2698;                     &#x2698;         &#x2698;
+        &#x2698;      &#x2698;
+   &#x2698;                     &#x2698;
+</pre></div>
+    <br>
+    <p>A contract garden by <a href="https://x.com/lukeweaver_eth" target="_blank" rel="noopener noreferrer">Luke Weaver</a>.</p>
+    <br>
+    <p style="opacity:0.5" id="gardener-count"></p>
+    <br>
+    <div class="nav-links"><a href="#/plant">plant a garden</a> <a href="#/essay">write an essay</a> <a href="#/manage">manage garden</a></div>
+    <br><br><br>
+    <div class="p"><a href="#gardens" style="text-decoration:none">&#x2193;</a></div>
+  </div></div>
+
+  <div class="w" id="gardens"><div class="s">
+    <div id="gardens-detail" class="loading">loading...</div>
+  </div></div>
+</div>
+</div>
+
+<!-- PLANT -->
+<div id="view-plant" class="hidden">
+<div class="c">
+  <div class="w"><div class="s g">
+<pre class="garden">      &#x2698;            &#x2698;
+   &#x2698;                    &#x2698;
+            &#x2698;
+</pre>
+    <br><h1>plant a garden</h1><br>
+    <p style="opacity:0.5">costs 0.01 ETH to plant</p><br>
+    <div id="plant-wallet" class="wallet-line"><a onclick="connectWallet()">connect wallet</a></div><br>
+    <div>
+      <div class="form-row"><label>garden title</label><input type="text" id="f-gardenTitle" placeholder="My Essay Garden"></div>
+      <div class="form-row"><label>curator name</label><input type="text" id="f-curatorName" placeholder="your name"></div>
+      <div class="form-row"><label>curator url</label><input type="url" id="f-curatorUrl" placeholder="https://yoursite.com"></div>
+      <div class="separator">&#x2014;</div>
+      <div class="form-row"><label>symbol</label><input type="text" id="f-symbol" value="&#x2698;" maxlength="1"></div>
+      <div class="form-row"><label>term</label><input type="text" id="f-collectionTerm" value="show" placeholder="show, anthology, collection"></div>
+      <div class="form-row"><label>background</label><div class="color-input-wrap"><input type="text" id="f-bgColor" value="#ffffff"><input type="color" id="f-bgColorPicker" value="#ffffff"></div></div>
+      <div class="form-row"><label>text color</label><div class="color-input-wrap"><input type="text" id="f-textColor" value="#000000"><input type="color" id="f-textColorPicker" value="#000000"></div></div>
+      <div class="separator">&#x2014;</div>
+      <div class="form-row"><label>thank you</label><input type="text" id="f-thankNames" placeholder="names, comma separated"></div>
+      <div class="form-row"><label>thank urls</label><input type="text" id="f-thankUrls" placeholder="urls, comma separated"></div>
+      <div class="separator">&#x2014;</div>
+      <div class="form-row"><label>exhibition text</label><input type="text" id="f-exhibitionText" placeholder="introduction to your garden"></div>
+      <div class="form-row"><label>garden urls</label><input type="text" id="f-gardenUrls" placeholder="urls where garden is accessible"></div>
+      <br><br>
+      <div id="plant-preview" style="opacity:0.5"></div><br>
+      <button class="btn" id="plant-btn" onclick="deployGarden()" disabled>plant a garden &#x2698; 0.01 ETH</button>
+      <a href="#/" class="btn" style="margin-left:1em">back</a>
+      <div id="plant-status"></div>
+    </div>
+  </div></div>
+</div>
+</div>
+
+<!-- ESSAY -->
+<div id="view-essay" class="hidden">
+<div class="c essay">
+  <div class="w"><div class="s g">
+<pre class="garden">         &#x2698;
+   &#x2698;            &#x2698;         &#x2698;
+</pre>
+    <br><h1>write an essay</h1><br>
+    <div id="essay-wallet" class="wallet-line"><a onclick="connectWallet()">connect wallet</a></div><br>
+    <div>
+      <div class="form-row"><label>garden</label><select class="garden-select" id="e-garden"><option value="">no garden — independent essay</option></select></div>
+      <div class="form-row hidden" id="essay-addr-row"><label>essay address</label><input type="text" id="e-essayAddr" readonly style="opacity:0.6"></div>
+      <div class="separator">&#x2014;</div>
+      <div class="form-row"><label>title</label><input type="text" id="e-title" placeholder="essay title"></div>
+      <div class="form-row"><label>author</label><input type="text" id="e-author" placeholder="author name"></div>
+      <div class="separator">&#x2014;</div>
+      <br><p style="opacity:0.5">write in markdown</p><br>
+      <textarea class="essay-input" id="e-markdown" placeholder="# Your Essay
+
+Write in markdown. Supports **bold**, *italic*, [links](url), headings, blockquotes, lists.
+
+Converted to HTML and stored on-chain via SSTORE2."></textarea>
+      <br>
+      <div id="essay-size" style="opacity:0.5;font-size:0.9em;margin:0.5em 0">0 bytes / 24,000 byte threshold</div>
+      <br>
+      <button class="btn" id="preview-btn" onclick="togglePreview()">preview</button>
+      <button class="btn" id="essay-deploy-btn" onclick="deployEssay()" disabled>deploy essay</button>
+      <a href="#/" class="btn" style="margin-left:1em">back</a>
+      <div id="essay-preview" class="preview-box hidden"></div>
+      <div id="essay-status"></div>
+      <br><br>
+    </div>
+  </div></div>
+</div>
+</div>
+
+<!-- MANAGE -->
+<div id="view-manage" class="hidden">
+<div class="c">
+  <div class="w"><div class="s g">
+<pre class="garden">&#x2698;      &#x2698;            &#x2698;         &#x2698;</pre>
+    <br><h1>manage garden</h1><br>
+    <div id="manage-wallet" class="wallet-line"><a onclick="connectWallet()">connect wallet</a></div><br>
+    <div>
+      <div class="form-row"><label>garden</label><select class="garden-select" id="m-garden"><option value="">connect wallet to load</option></select></div>
+      <div id="m-garden-link" class="hidden" style="margin:0.4em 0 0 14ch;opacity:0.5;font-size:0.9em;word-break:break-all;"></div>
+      <div id="manage-panel" class="hidden">
+        <div class="separator">&#x2014;</div>
+        <p style="opacity:0.5">sculptures</p><br>
+        <div id="m-sculptures-list"></div>
+        <br>
+        <div class="form-row"><label>add sculpture</label><input type="text" id="m-sculpture-addr" placeholder="0x..."></div>
+        <br>
+        <button class="btn" id="m-add-btn" onclick="addSculpture()" disabled>add sculpture</button>
+        <div class="separator">&#x2014;</div>
+        <p style="opacity:0.5">web3 frontend</p><br>
+        <p style="opacity:0.7;line-height:1.5">Access your garden via the web3:// protocol at <span style="opacity:0.5" id="m-web3-link">select a garden</span></p><br>
+        <p style="opacity:0.7;line-height:1.5">To connect your garden to a custom domain:</p>
+        <ol style="opacity:0.7;line-height:1.5;padding-left:2em;margin:0.5em 0">
+          <li>Register an ENS name (e.g., mygarden.eth)</li>
+          <li>Set the ENS name to resolve to your garden contract address</li>
+          <li>Your garden will be accessible at https://mygarden.eth.limo or via any web3 gateway</li>
+        </ol>
+      </div>
+      <br>
+      <a href="#/" class="btn">back</a>
+      <div id="manage-status"></div>
+      <br><br>
+    </div>
+  </div></div>
+</div>
+</div>
+
+<div class="f"><a href="#/" style="text-decoration: none;">&#x2698;</a></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script>
+const CONFIG={FACTORY_ADDRESS:'0x4e1E64da55adFb53f0508AaA5DCb3F6F710a05c0',CHAIN_ID:11155111,CHAIN_NAME:'Sepolia',RPC_URL:'https://ethereum-sepolia.publicnode.com',EXPLORER:'https://sepolia.etherscan.io'};
+const ABI={factory:['function createGarden(string,string,string,string[],string[],string,string,string[],string,string,string) external payable returns (address)','function deployEssay() external returns (address)','function getGardens() view returns (address[])','function gardenCount() view returns (uint256)','function garden(uint256) view returns (address,address,string,string,uint256)','function totalGardeners() view returns (uint256)','event GardenPlanted(address indexed garden,address indexed gardener,string curatorName,string unicodeSymbol,address mod,address essay,address renderer,address web)','event EssayDeployed(address indexed essay,address indexed author)'],mod:['function curatorName() view returns (string)','function gardenTitle() view returns (string)','function unicodeSymbol() view returns (string)','function collectionTerm() view returns (string)'],essay:['function setTitle(string) external','function setAuthor(string) external','function setTextPt1(string) external','function setTextPt2(string) external','function publish(string,string,string) external','function publishLarge(string,string,string,string) external','function owner() view returns (address)'],garden:['function getSculptures() view returns (address[])','function setSculptures(address[]) external','function owner() view returns (address)','function render() view returns (address)'],web:['function renderer() view returns (address)'],renderer:['function essayContract() view returns (address)'],sculpture:['function title() view returns (string)','function authors() view returns (string[])','function urls() view returns (string[])','function text() view returns (string)']};
+let provider=null,signer=null,account=null,gardens=[];
+const ensCache={};
+
+function route(){const h=window.location.hash||'#/';['view-index','view-plant','view-essay','view-manage'].forEach(v=>document.getElementById(v).classList.add('hidden'));if(h.startsWith('#/plant')){document.getElementById('view-plant').classList.remove('hidden');updateWalletDisplay();}else if(h.startsWith('#/essay')){document.getElementById('view-essay').classList.remove('hidden');updateWalletDisplay();if(account)loadUserGardens();}else if(h.startsWith('#/manage')){document.getElementById('view-manage').classList.remove('hidden');updateWalletDisplay();if(account)loadManageGardens();}else{document.getElementById('view-index').classList.remove('hidden');}window.scrollTo(0,0);}
+window.addEventListener('hashchange',route);
+
+async function connectWallet(){if(typeof window.ethereum==='undefined'){alert('Please install MetaMask or another web3 wallet.');return;}try{const accs=await window.ethereum.request({method:'eth_requestAccounts'});account=accs[0];const cid=await window.ethereum.request({method:'eth_chainId'});if(parseInt(cid,16)!==CONFIG.CHAIN_ID){try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x'+CONFIG.CHAIN_ID.toString(16)}]});}catch(e){alert('Please switch to '+CONFIG.CHAIN_NAME);return;}}provider=new ethers.providers.Web3Provider(window.ethereum);signer=provider.getSigner();updateWalletDisplay();document.getElementById('plant-btn').disabled=false;document.getElementById('essay-deploy-btn').disabled=false;document.getElementById('m-add-btn').disabled=false;const h=window.location.hash||'#/';if(h.startsWith('#/essay'))loadUserGardens();if(h.startsWith('#/manage'))loadManageGardens();}catch(e){console.error(e);}}
+function updateWalletDisplay(){['plant-wallet','essay-wallet','manage-wallet'].forEach(id=>{const el=document.getElementById(id);el.innerHTML=account?'<span class="addr">'+account.substring(0,6)+'...'+account.substring(38)+'</span>':'<a onclick="connectWallet()">connect wallet</a>';});}
+if(window.ethereum){window.ethereum.on('accountsChanged',a=>{if(!a.length){account=null;signer=null;document.getElementById('plant-btn').disabled=true;document.getElementById('essay-deploy-btn').disabled=true;document.getElementById('m-add-btn').disabled=true;}else account=a[0];updateWalletDisplay();});window.ethereum.on('chainChanged',()=>window.location.reload());}
+function getReadProvider(){return provider||new ethers.providers.JsonRpcProvider(CONFIG.RPC_URL);}
+
+async function resolveENS(addr){
+  const k=addr.toLowerCase();
+  if(ensCache[k]!==undefined)return ensCache[k];
+  try{
+    const p=getReadProvider();
+    const name=await p.lookupAddress(addr);
+    ensCache[k]=name||addr;
+    return ensCache[k];
+  }catch(e){
+    ensCache[k]=addr;
+    return addr;
+  }
+}
+
+// Build a scattered symbol field from garden symbols
+function symbolField(gardenSymbols){
+  const cols=40,rows=5;
+  let grid=[];for(let r=0;r<rows;r++)grid.push(new Array(cols).fill(' '));
+  // If no gardens yet, scatter some default ⚘
+  const syms=gardenSymbols.length?gardenSymbols:['\u2698','\u2698','\u2698','\u2698','\u2698','\u2698','\u2698','\u2698'];
+  let seed=syms.length*2654435761;
+  function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
+  // Place each garden's symbol
+  const maxPlace=Math.min(syms.length,Math.floor(cols*rows*0.15));
+  for(let i=0;i<maxPlace;i++){
+    let r,c,tries=0;
+    do{r=Math.floor(rng()*rows);c=Math.floor(rng()*cols);tries++;}while(grid[r][c]!==' '&&tries<50);
+    if(grid[r][c]===' ')grid[r][c]=syms[i];
+  }
+  // If more gardens than grid can show, fill remaining spots
+  if(syms.length>maxPlace){
+    for(let i=maxPlace;i<syms.length&&i<cols*rows*0.2;i++){
+      let r,c,tries=0;
+      do{r=Math.floor(rng()*rows);c=Math.floor(rng()*cols);tries++;}while(grid[r][c]!==' '&&tries<50);
+      if(grid[r][c]===' ')grid[r][c]=syms[i];
+    }
+  }
+  return '<pre class="garden">'+grid.map(r=>r.join('')).join('\n')+'</pre>';
+}
+
+async function loadGardens(){
+  const listEl=document.getElementById('garden-list'),detailEl=document.getElementById('gardens-detail'),countEl=document.getElementById('gardener-count');
+  try{
+    const rpc=getReadProvider(),factory=new ethers.Contract(CONFIG.FACTORY_ADDRESS,ABI.factory,rpc);
+
+    // Use direct contract reads (event queries failing with RPC)
+    let events=[];
+    const count=(await factory.gardenCount()).toNumber();
+    for(let i=0;i<count;i++){
+      const entry=await factory.garden(i);
+      // Try to get mod address from garden's data() function
+      let modAddr=ethers.constants.AddressZero;
+      try{
+        const gardenContract=new ethers.Contract(entry[0],['function data() view returns (address)'],rpc);
+        modAddr=await gardenContract.data();
+      }catch(err){}
+      events.push({args:{garden:entry[0],gardener:entry[1],curatorName:entry[2],unicodeSymbol:entry[3],mod:modAddr,essay:ethers.constants.AddressZero,renderer:ethers.constants.AddressZero,web:ethers.constants.AddressZero}});
+    }
+
+    gardens=events.map(e=>({
+      garden:e.args.garden,gardener:e.args.gardener,
+      curatorName:e.args.curatorName,unicodeSymbol:e.args.unicodeSymbol,
+      mod:e.args.mod,essay:e.args.essay,renderer:e.args.renderer,web:e.args.web
+    }));
+
+    // Build scattered symbol fields from actual garden symbols
+    const syms=gardens.map(g=>g.unicodeSymbol||'\u2698');
+    document.getElementById('symbol-field-top').innerHTML=symbolField(syms);
+    // Second field uses reversed order for different pattern
+    const syms2=syms.slice().reverse();
+    let seed2=syms2.length*1337;
+    document.getElementById('symbol-field-bottom').innerHTML=symbolField(syms2);
+
+    // Gardener count
+    let gc=0;
+    try{gc=(await factory.totalGardeners()).toNumber();}catch(e){
+      const unique=new Set(gardens.map(g=>g.gardener?.toLowerCase()));gc=unique.size;
+    }
+    if(gardens.length){
+      countEl.textContent=gc+' gardener'+(gc===1?'':'s')+' planted '+gardens.length+' garden'+(gardens.length===1?'':'s');
+    }
+
+    // Display factory address
+    const factoryEl=document.getElementById('factory-address');
+    factoryEl.textContent=CONFIG.FACTORY_ADDRESS;
+
+    // Garden name list
+    let names='';
+    if(gardens.length){
+      gardens.forEach(g=>{names+=(g.unicodeSymbol||'\u2698')+' '+(g.curatorName||'anonymous')+'<br>';});
+      listEl.innerHTML=names;
+    }else{
+      listEl.innerHTML='<span style="opacity:0.4">no gardens yet</span>';
+    }
+    listEl.classList.remove('loading');
+
+    // Detail cards — always show essay text, even with 0 gardens
+    let detail='<p>I invite you into the garden of many gardens – an open ground for all to plant.</p><br><br>'
+      +'<p>The World Computer Sculpture Garden (2024) established a pattern that opened the infinite garden of Ethereum up to everyone.</p><br><br>'
+      +'<p>This pattern inspired the contract show Intimate Systems in 2026, for which I wrote the introductory essay, \'The Garden\', that planted the seed of the idea for the Garden Factory.</p><br><br>'
+      +'<p>This garden of gardens is an attempt to expand the invitation offered by fff and the artists of the World Computer Sculpture Garden to anyone willing to plant a garden and place a sculpture.</p><br><br>'
+      +'<p>The proliferation of large language models has eliminated the moat to the garden. All that is required to plant a sculpture is to ask for and deploy a contract that fits the sculpture interface.</p><br><br>'
+      +'<p>This Garden Factory is an encouragement to become a gardener.</p><br><br>'
+      +'<p>Exhibit your collections. Own your own anthology. Create a public program sketchbook.</p><br><br>'
+      +'<p>Get your hands dirty. Dig into the medium. Plant a garden, then fill that garden with durable living sculptures – long-running programs on the world computer.</p><br><br>'
+      +'<p>Over time, as people use the Garden Factory to plant their gardens, the information rendered here will change, block by block, year by year.</p><br><br>'
+      +'<p style="opacity:0.5">—</p><br><br>';
+    for(const g of gardens){
+      const name=g.curatorName||'anonymous';
+      const short=g.garden.substring(0,8)+'...'+g.garden.substring(38);
+      const sym=g.unicodeSymbol||'\u2698';
+
+      // Try to read gardenTitle, collectionTerm, exhibitionText, and URLs from garden
+      let gtitle='',term='collection',gardenUrls=[],exhibitionText='';
+      try{
+        const gardenContract=new ethers.Contract(g.garden,ABI.sculpture,rpc);
+
+        // Read from Mod if available
+        if(g.mod!==ethers.constants.AddressZero){
+          const mod=new ethers.Contract(g.mod,ABI.mod,rpc);
+          const[t,gt]=await Promise.all([
+            mod.collectionTerm().catch(()=>'collection'),
+            mod.gardenTitle().catch(()=>'')
+          ]);
+          term=t||'collection';gtitle=gt||'';
+        }
+
+        // Read exhibition text and URLs from garden's Sculpture interface
+        const[urls,text]=await Promise.all([
+          gardenContract.urls().catch(()=>[]),
+          gardenContract.text().catch(()=>'')
+        ]);
+        gardenUrls=urls;
+        exhibitionText=text;
+      }catch(e){}
+
+      const entryId='garden-entry-'+g.garden.toLowerCase().replace(/[^a-z0-9]/g,'');
+
+      // Follow WCSG sculpture pattern: title, authors, addresses, urls, text
+      detail+='<div class="garden-entry" id="'+entryId+'">';
+
+      // Title
+      if(gtitle){
+        detail+='<p><i>'+esc(gtitle)+'</i></p><br>';
+      }
+
+      // Authors (curator name)
+      detail+='<p>'+esc(name)+'</p><br>';
+
+      // Addresses (full garden address) with view link
+      const gardenUrl=window.location.origin+'/'+g.garden;
+      detail+='<p style="font-size:0.9em"><span id="'+entryId+'-addr">'+g.garden+'</span></p>';
+      detail+='<p style="font-size:0.9em;opacity:0.7;margin-top:0.3em"><a href="'+gardenUrl+'" target="_blank" rel="noopener noreferrer">view garden \u2192</a></p><br>';
+
+      // URLs from garden contract
+      if(gardenUrls.length>0){
+        detail+='<p style="opacity:0.7;font-size:0.9em">';
+        for(let i=0;i<gardenUrls.length;i++){
+          if(gardenUrls[i]){
+            detail+='<a href="'+esc(gardenUrls[i])+'" target="_blank" rel="noopener noreferrer">'+esc(gardenUrls[i])+'</a><br>';
+          }
+        }
+        detail+='</p><br>';
+      }
+
+      // Text (exhibition text or default description)
+      if(exhibitionText){
+        detail+='<p style="opacity:0.6"><i>'+esc(exhibitionText)+'</i></p>';
+      }else{
+        detail+='<p style="opacity:0.6"><i>A contract '+esc(term)+' curated by '+esc(name)+'</i></p>';
+      }
+
+      detail+='</div>';
+    }
+    detailEl.innerHTML=detail;
+    detailEl.classList.remove('loading');
+
+    // Progressive ENS resolution
+    for(const g of gardens){
+      const entryId='garden-entry-'+g.garden.toLowerCase().replace(/[^a-z0-9]/g,'');
+      const el=document.getElementById(entryId+'-addr');
+      if(!el)continue;
+      resolveENS(g.garden).then(resolved=>{
+        if(resolved&&resolved!==g.garden&&el){
+          el.textContent=resolved;
+          el.title=g.garden;
+        }
+      }).catch(()=>{});
+    }
+  }catch(e){
+    console.error(e);
+    listEl.innerHTML='<span style="opacity:0.4">unable to load</span>';
+    listEl.classList.remove('loading');
+    detailEl.innerHTML='';
+    detailEl.classList.remove('loading');
+  }
+}
+
+async function deployGarden(){
+  if(!signer){connectWallet();return;}
+  const btn=document.getElementById('plant-btn'),st=document.getElementById('plant-status');
+  btn.disabled=true;
+  try{
+    const gt=val('f-gardenTitle'),cn=val('f-curatorName'),cu=val('f-curatorUrl'),
+      tn=split('f-thankNames'),tu=split('f-thankUrls'),
+      sym=val('f-symbol')||'\u2698',et=val('f-exhibitionText'),
+      gu=split('f-gardenUrls'),ct=val('f-collectionTerm')||'show',
+      bg=val('f-bgColor')||'#ffffff',tc=val('f-textColor')||'#000000';
+
+    if(!cn){showSt(st,'curator name is required','error');btn.disabled=false;return;}
+    if(tn.length!==tu.length){showSt(st,'thank you names and urls must match','error');btn.disabled=false;return;}
+
+    showSt(st,'confirm transaction in wallet...');
+    const factory=new ethers.Contract(CONFIG.FACTORY_ADDRESS,ABI.factory,signer);
+    const tx=await factory.createGarden(gt,cn,cu,tn,tu,sym,et,gu,ct,bg,tc,{value:ethers.utils.parseEther('0.01')});
+
+    showSt(st,'planting... <a href="'+CONFIG.EXPLORER+'/tx/'+tx.hash+'" target="_blank">'+tx.hash.substring(0,14)+'...</a>');
+    const receipt=await tx.wait();
+    const ev=receipt.events?.find(e=>e.event==='GardenPlanted');
+    const ga=ev?.args?.garden,ea=ev?.args?.essay;
+
+    let m='\u2698 garden planted<br><br>garden: '+ga+'<br>';
+    if(ea)m+='essay: '+ea+'<br>';
+    m+='<br><a href="#/">\u2190 back to garden factory</a> · <a href="#/essay">write an essay \u2192</a> · <a href="#/manage">manage garden \u2192</a>';
+    showSt(st,m,'success');
+    loadGardens();
+  }catch(e){
+    console.error(e);
+    showSt(st,'failed: '+(e.reason||e.message),'error');
+  }finally{btn.disabled=false;}
+}
+
+async function loadUserGardens(){
+  if(!account)return;
+  const sel=document.getElementById('e-garden');
+  sel.innerHTML='<option value="">loading...</option>';
+  try{
+    const rpc=getReadProvider(),factory=new ethers.Contract(CONFIG.FACTORY_ADDRESS,ABI.factory,rpc);
+    let evs=[];
+    // Use direct contract reads instead of events
+    const count=(await factory.gardenCount()).toNumber();
+    for(let i=0;i<count;i++){
+      const entry=await factory.garden(i);
+      if(entry[1].toLowerCase()===account.toLowerCase()){
+        // Get essay address: garden → render (Web) → renderer (GardenRendererConfigurable) → essayContract
+        let essayAddr=ethers.constants.AddressZero;
+        try{
+          const gardenContract=new ethers.Contract(entry[0],ABI.garden,rpc);
+          const webAddr=await gardenContract.render();
+          if(webAddr!==ethers.constants.AddressZero){
+            const webContract=new ethers.Contract(webAddr,ABI.web,rpc);
+            const rendererAddr=await webContract.renderer();
+            if(rendererAddr!==ethers.constants.AddressZero){
+              const rendererContract=new ethers.Contract(rendererAddr,ABI.renderer,rpc);
+              essayAddr=await rendererContract.essayContract();
+            }
+          }
+        }catch(err){console.error('Error getting essay address:',err);}
+        evs.push({args:{garden:entry[0],gardener:entry[1],curatorName:entry[2],unicodeSymbol:entry[3],essay:essayAddr}});
+      }
+    }
+    let opts='<option value="">no garden \u2014 independent essay</option>';
+    evs.forEach(ev=>{
+      const n=ev.args.curatorName||'unnamed',s=ev.args.garden.substring(0,10)+'...';
+      opts+='<option value="'+ev.args.garden+'" data-essay="'+ev.args.essay+'">'+esc(n)+' ('+s+')</option>';
+    });
+    sel.innerHTML=opts;
+  }catch(e){console.error(e);sel.innerHTML='<option value="">no garden \u2014 independent essay</option>';}
+}
+document.getElementById('e-garden').addEventListener('change',function(){const o=this.options[this.selectedIndex],a=o?.dataset?.essay||'';document.getElementById('e-essayAddr').value=a;const row=document.getElementById('essay-addr-row');a?row.classList.remove('hidden'):row.classList.add('hidden');});
+
+function togglePreview(){const p=document.getElementById('essay-preview'),b=document.getElementById('preview-btn'),md=document.getElementById('e-markdown').value;if(p.classList.contains('hidden')){p.innerHTML=md.trim()?marked.parse(md,{breaks:true,gfm:true}):'<span style="opacity:0.4">nothing to preview</span>';p.classList.remove('hidden');b.textContent='hide preview';}else{p.classList.add('hidden');b.textContent='preview';}}
+
+function updateEssaySize(){
+  const md=document.getElementById('e-markdown').value,el=document.getElementById('essay-size');
+  if(!md.trim()){el.innerHTML='0 bytes / 24,000 byte threshold';el.style.opacity='0.5';el.style.color='';return;}
+  const html=marked.parse(md,{breaks:true,gfm:true}),bytes=new TextEncoder().encode(html),len=bytes.length;
+  const fmt=len.toLocaleString();
+  let msg=fmt+' bytes / 24,000 byte threshold';
+  if(len>24000){msg+=' <span style="color:#ff6b6b">(large essay, 2-part storage)</span>';el.style.opacity='1';el.style.color='#ff6b6b';}
+  else if(len>20000){msg+=' <span style="color:#ffa500">(approaching limit)</span>';el.style.opacity='1';el.style.color='#ffa500';}
+  else{el.style.opacity='0.5';el.style.color='';}
+  el.innerHTML=msg;
+}
+document.getElementById('e-markdown').addEventListener('input',updateEssaySize);
+
+async function deployEssay(){if(!signer){connectWallet();return;}const btn=document.getElementById('essay-deploy-btn'),st=document.getElementById('essay-status');btn.disabled=true;try{const ga=document.getElementById('e-garden').value;let ea=val('e-essayAddr');if(!ea){showSt(st,'deploying essay contract...');const factory=new ethers.Contract(CONFIG.FACTORY_ADDRESS,ABI.factory,signer);const tx=await factory.deployEssay();showSt(st,'confirming...');const receipt=await tx.wait();const ev=receipt.events?.find(e=>e.event==='EssayDeployed');ea=ev?.args?.essay;if(!ea)throw new Error('EssayDeployed event not found');}if(!val('e-title')){showSt(st,'title is required','error');btn.disabled=false;return;}if(!val('e-author')){showSt(st,'author is required','error');btn.disabled=false;return;}const md=document.getElementById('e-markdown').value;if(!md.trim()){showSt(st,'content is required','error');btn.disabled=false;return;}const html=marked.parse(md,{breaks:true,gfm:true}),bytes=new TextEncoder().encode(html),essay=new ethers.Contract(ea,ABI.essay,signer);let owner;try{owner=await essay.owner();}catch(e){showSt(st,'could not verify ownership','error');btn.disabled=false;return;}if(owner.toLowerCase()!==account.toLowerCase()){showSt(st,'you do not own this essay contract','error');btn.disabled=false;return;}const LIM=24000;if(bytes.length<=LIM){showSt(st,'publishing essay on-chain...');await(await essay.publish(val('e-title'),val('e-author'),html)).wait();}else{const sp=findSplit(html,LIM);showSt(st,'publishing large essay on-chain (2 parts)...');await(await essay.publishLarge(val('e-title'),val('e-author'),html.substring(0,sp),html.substring(sp))).wait();}let m='\u2698 essay published on-chain<br><br>essay: <a href="'+CONFIG.EXPLORER+'/address/'+ea+'" target="_blank">'+ea+'</a>';if(ga)m+='<br>garden: <a href="'+CONFIG.EXPLORER+'/address/'+ga+'" target="_blank">'+ga+'</a>';showSt(st,m,'success');}catch(e){console.error(e);showSt(st,'failed: '+(e.reason||e.message),'error');}finally{btn.disabled=false;}}
+function findSplit(s,max){const enc=new TextEncoder();let p=max;while(enc.encode(s.substring(0,p)).length>max&&p>0)p--;const lc=s.lastIndexOf('>',p),lo=s.lastIndexOf('<',p);if(lo>lc&&lc>0)return lo;return p;}
+
+async function loadManageGardens(){
+  if(!account)return;
+  const sel=document.getElementById('m-garden');
+  sel.innerHTML='<option value="">loading...</option>';
+  try{
+    const rpc=getReadProvider(),factory=new ethers.Contract(CONFIG.FACTORY_ADDRESS,ABI.factory,rpc);
+    let evs=[];
+    // Use direct contract reads instead of events
+    const count=(await factory.gardenCount()).toNumber();
+    for(let i=0;i<count;i++){
+      const entry=await factory.garden(i);
+      if(entry[1].toLowerCase()===account.toLowerCase()){
+        // Get mod address from garden
+        let modAddr=ethers.constants.AddressZero;
+        try{
+          const gardenContract=new ethers.Contract(entry[0],['function data() view returns (address)'],rpc);
+          modAddr=await gardenContract.data();
+        }catch(err){}
+        evs.push({args:{garden:entry[0],gardener:entry[1],curatorName:entry[2],unicodeSymbol:entry[3],mod:modAddr}});
+      }
+    }
+    if(!evs.length){sel.innerHTML='<option value="">no gardens found</option>';return;}
+    let opts='<option value="">select a garden</option>';
+
+    // Fetch garden titles from mod contracts
+    for(const ev of evs){
+      const n=ev.args.curatorName||'unnamed',s=ev.args.garden.substring(0,10)+'...';
+      let gtitle='';
+      try{
+        if(ev.args.mod&&ev.args.mod!==ethers.constants.AddressZero){
+          const mod=new ethers.Contract(ev.args.mod,ABI.mod,rpc);
+          gtitle=await mod.gardenTitle().catch(()=>'');
+        }
+      }catch(e){}
+
+      const label=gtitle?esc(gtitle)+' — '+esc(n)+' ('+s+')':esc(n)+' ('+s+')';
+      opts+='<option value="'+ev.args.garden+'">'+label+'</option>';
+    }
+    sel.innerHTML=opts;
+  }catch(e){console.error(e);sel.innerHTML='<option value="">failed to load</option>';}
+}
+document.getElementById('m-garden').addEventListener('change',function(){
+  const ga=this.value;
+  const panel=document.getElementById('manage-panel');
+  const linkEl=document.getElementById('m-garden-link');
+  const web3LinkEl=document.getElementById('m-web3-link');
+  document.getElementById('manage-status').className='status-line';
+  document.getElementById('manage-status').innerHTML='';
+  if(ga){
+    panel.classList.remove('hidden');
+    linkEl.innerHTML='<a href="'+CONFIG.EXPLORER+'/address/'+ga+'" target="_blank" id="m-garden-addr-link">'+ga+'</a>';
+    linkEl.classList.remove('hidden');
+    // Update web3 link
+    const w3link='https://'+ga.toLowerCase()+'.w3eth.io';
+    web3LinkEl.innerHTML='<a href="'+w3link+'" target="_blank">'+w3link+'</a>';
+    loadGardenSculptures(ga);
+    // Progressive ENS resolution
+    resolveENS(ga).then(resolved=>{
+      const el=document.getElementById('m-garden-addr-link');
+      if(resolved&&resolved!==ga&&el){
+        el.textContent=resolved;
+        el.title=ga;
+      }
+    }).catch(()=>{});
+  }else{
+    panel.classList.add('hidden');
+    linkEl.classList.add('hidden');
+    linkEl.innerHTML='';
+    web3LinkEl.textContent='select a garden';
+    document.getElementById('m-sculptures-list').innerHTML='';
+  }
+});
+
+async function loadGardenSculptures(gardenAddr){
+  const el=document.getElementById('m-sculptures-list');
+  el.innerHTML='<span style="opacity:0.4">loading...</span>';
+  try{
+    const rpc=getReadProvider(),garden=new ethers.Contract(gardenAddr,ABI.garden,rpc);
+    const sculptures=await garden.getSculptures();
+    if(!sculptures.length){el.innerHTML='<span style="opacity:0.4">no sculptures yet</span>';return;}
+    let html='';
+    for(let i=0;i<sculptures.length;i++){
+      const addr=sculptures[i],short=addr.substring(0,8)+'...'+addr.substring(38);
+      let label='<span style="opacity:0.5">'+short+'</span>';
+      try{
+        const sc=new ethers.Contract(addr,ABI.sculpture,rpc);
+        const[t,aus]=await Promise.all([sc.title().catch(()=>''),sc.authors().catch(()=>[])]);
+        const au=aus[0]||'';
+        if(t)label='<i>'+esc(t)+'</i>'+(au?' <span style="opacity:0.5">by '+esc(au)+'</span>':'')+' <span style="opacity:0.35">('+short+')</span>';
+      }catch(e){}
+      html+='<div style="margin:0.5em 0;display:flex;align-items:baseline;gap:1.5em;">'
+        +'<span style="flex:1">'+label+'</span>'
+        +'<a href="#" onclick="removeSculpture(\''+gardenAddr+'\','+i+');return false;" style="opacity:0.4;flex-shrink:0">remove</a>'
+        +'</div>';
+    }
+    el.innerHTML=html;
+  }catch(e){console.error(e);el.innerHTML='<span style="opacity:0.4">failed to load</span>';}
+}
+
+async function addSculpture(){
+  if(!signer){connectWallet();return;}
+  const btn=document.getElementById('m-add-btn'),st=document.getElementById('manage-status');
+  const ga=document.getElementById('m-garden').value;
+  const raw=document.getElementById('m-sculpture-addr').value.trim();
+  if(!ga){showSt(st,'select a garden','error');return;}
+  if(!raw){showSt(st,'enter a sculpture address','error');return;}
+  let addr;
+  try{addr=ethers.utils.getAddress(raw);}catch(e){showSt(st,'invalid address','error');return;}
+  btn.disabled=true;
+  try{
+    const garden=new ethers.Contract(ga,ABI.garden,signer);
+    const current=await garden.getSculptures();
+    if(current.map(a=>a.toLowerCase()).includes(addr.toLowerCase())){showSt(st,'already in sculpture list','error');btn.disabled=false;return;}
+
+    // Validate Sculpture interface
+    showSt(st,'validating sculpture interface...');
+    const rpc=getReadProvider();
+    const sculpture=new ethers.Contract(addr,ABI.sculpture,rpc);
+    try{
+      await Promise.all([sculpture.title(),sculpture.authors()]);
+    }catch(e){
+      showSt(st,'contract does not implement Sculpture interface','error');
+      btn.disabled=false;
+      return;
+    }
+
+    showSt(st,'confirm transaction...');
+    await(await garden.setSculptures([...current,addr])).wait();
+    document.getElementById('m-sculpture-addr').value='';
+    showSt(st,'\u2698 sculpture added','success');
+    loadGardenSculptures(ga);
+  }catch(e){console.error(e);showSt(st,'failed: '+(e.reason||e.message),'error');}
+  finally{btn.disabled=false;}
+}
+
+async function removeSculpture(gardenAddr,index){
+  if(!signer){connectWallet();return;}
+  const st=document.getElementById('manage-status');
+  showSt(st,'confirm removal...');
+  try{
+    const garden=new ethers.Contract(gardenAddr,ABI.garden,signer);
+    const current=await garden.getSculptures();
+    const updated=current.filter((_,i)=>i!==index);
+    await(await garden.setSculptures(updated)).wait();
+    showSt(st,'\u2698 sculpture removed','success');
+    loadGardenSculptures(gardenAddr);
+  }catch(e){console.error(e);showSt(st,'failed: '+(e.reason||e.message),'error');}
+}
+
+// Color sync
+document.getElementById('f-bgColorPicker').addEventListener('input',function(){document.getElementById('f-bgColor').value=this.value;upPreview();});
+document.getElementById('f-bgColor').addEventListener('input',function(){try{document.getElementById('f-bgColorPicker').value=this.value;}catch(e){}upPreview();});
+document.getElementById('f-textColorPicker').addEventListener('input',function(){document.getElementById('f-textColor').value=this.value;upPreview();});
+document.getElementById('f-textColor').addEventListener('input',function(){try{document.getElementById('f-textColorPicker').value=this.value;}catch(e){}upPreview();});
+function upPreview(){const n=val('f-curatorName')||'curator',t=val('f-collectionTerm')||'show',s=val('f-symbol')||'\u2698',gt=val('f-gardenTitle');document.getElementById('plant-preview').innerHTML=s+'  '+(gt?esc(gt)+' — ':'')+'A contract '+esc(t)+' by '+esc(n);}
+['f-gardenTitle','f-curatorName','f-collectionTerm','f-symbol'].forEach(id=>document.getElementById(id).addEventListener('input',upPreview));
+upPreview();
+
+function val(id){return document.getElementById(id).value.trim();}
+function split(id){return val(id)?val(id).split(',').map(s=>s.trim()).filter(Boolean):[];}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function showSt(el,msg,type){el.className='status-line'+(type?' '+type:'');el.innerHTML=msg;}
+
+window.addEventListener('load',()=>{route();loadGardens();});
+</script>
+</body>
+</html>

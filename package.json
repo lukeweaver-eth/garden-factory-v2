@@ -1,0 +1,8 @@
+{
+  "name": "garden-factory",
+  "version": "1.0.0",
+  "description": "Garden Factory - Plant on-chain essay gardens",
+  "dependencies": {
+    "ethers": "^6.9.0"
+  }
+}
