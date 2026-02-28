@@ -9,6 +9,12 @@
   to = "/.netlify/functions/garden/:splat"
   status = 200
 
+# Redirect /essay to homepage (for old gardens with broken relative links)
+[[redirects]]
+  from = "/essay"
+  to = "/"
+  status = 301
+
 # Serve index.html for root
 [[redirects]]
   from = "/"
