@@ -278,18 +278,28 @@ async function loadGardens(){
   try{
     const rpc=getReadProvider(),factory=new ethers.Contract(CONFIG.FACTORY_ADDRESS,ABI.factory,rpc);
 
-    // Use direct contract reads (event queries failing with RPC)
+    // Use direct contract reads (event queries failing with RPC) - parallelized
     let events=[];
     const count=(await factory.gardenCount()).toNumber();
+
+    // Fetch all garden entries in parallel
+    const gardenPromises=[];
     for(let i=0;i<count;i++){
-      const entry=await factory.garden(i);
-      // Try to get mod address from garden's data() function
-      let modAddr=ethers.constants.AddressZero;
-      try{
-        const gardenContract=new ethers.Contract(entry[0],['function data() view returns (address)'],rpc);
-        modAddr=await gardenContract.data();
-      }catch(err){}
-      events.push({args:{garden:entry[0],gardener:entry[1],curatorName:entry[2],unicodeSymbol:entry[3],mod:modAddr,essay:ethers.constants.AddressZero,renderer:ethers.constants.AddressZero,web:ethers.constants.AddressZero}});
+      gardenPromises.push(factory.garden(i));
+    }
+    const gardenEntries=await Promise.all(gardenPromises);
+
+    // Fetch mod addresses in parallel
+    const modPromises=gardenEntries.map(entry=>{
+      const gardenContract=new ethers.Contract(entry[0],['function data() view returns (address)'],rpc);
+      return gardenContract.data().catch(()=>ethers.constants.AddressZero);
+    });
+    const modAddrs=await Promise.all(modPromises);
+
+    // Build events array
+    for(let i=0;i<gardenEntries.length;i++){
+      const entry=gardenEntries[i];
+      events.push({args:{garden:entry[0],gardener:entry[1],curatorName:entry[2],unicodeSymbol:entry[3],mod:modAddrs[i],essay:ethers.constants.AddressZero,renderer:ethers.constants.AddressZero,web:ethers.constants.AddressZero}});
     }
 
     gardens=events.map(e=>({
@@ -340,34 +350,48 @@ async function loadGardens(){
       +'<p>Get your hands dirty. Dig into the medium. Plant a garden, then fill that garden with durable living sculptures – long-running programs on the world computer.</p><br><br>'
       +'<p>Over time, as people use the Garden Factory to plant their gardens, the information rendered here will change, block by block, year by year.</p><br><br>'
       +'<p style="opacity:0.5">—</p><br><br>';
-    for(const g of gardens){
-      const name=g.curatorName||'anonymous';
-      const short=g.garden.substring(0,8)+'...'+g.garden.substring(38);
-      const sym=g.unicodeSymbol||'\u2698';
 
-      // Try to read gardenTitle, collectionTerm, exhibitionText, and URLs from garden
+    // Fetch all garden details in parallel
+    const gardenDetailsPromises=gardens.map(async g=>{
       let gtitle='',term='collection',gardenUrls=[],exhibitionText='';
       try{
         const gardenContract=new ethers.Contract(g.garden,ABI.sculpture,rpc);
+        const promises=[];
 
         // Read from Mod if available
         if(g.mod!==ethers.constants.AddressZero){
           const mod=new ethers.Contract(g.mod,ABI.mod,rpc);
-          const[t,gt]=await Promise.all([
+          promises.push(
             mod.collectionTerm().catch(()=>'collection'),
             mod.gardenTitle().catch(()=>'')
-          ]);
-          term=t||'collection';gtitle=gt||'';
+          );
+        }else{
+          promises.push(Promise.resolve('collection'),Promise.resolve(''));
         }
 
         // Read exhibition text and URLs from garden's Sculpture interface
-        const[urls,text]=await Promise.all([
+        promises.push(
           gardenContract.urls().catch(()=>[]),
           gardenContract.text().catch(()=>'')
-        ]);
-        gardenUrls=urls;
-        exhibitionText=text;
+        );
+
+        const results=await Promise.all(promises);
+        term=results[0]||'collection';
+        gtitle=results[1]||'';
+        gardenUrls=results[2];
+        exhibitionText=results[3];
       }catch(e){}
+      return{gtitle,term,gardenUrls,exhibitionText};
+    });
+
+    const gardenDetails=await Promise.all(gardenDetailsPromises);
+
+    for(let i=0;i<gardens.length;i++){
+      const g=gardens[i];
+      const{gtitle,term,gardenUrls,exhibitionText}=gardenDetails[i];
+      const name=g.curatorName||'anonymous';
+      const short=g.garden.substring(0,8)+'...'+g.garden.substring(38);
+      const sym=g.unicodeSymbol||'\u2698';
 
       const entryId='garden-entry-'+g.garden.toLowerCase().replace(/[^a-z0-9]/g,'');
 
