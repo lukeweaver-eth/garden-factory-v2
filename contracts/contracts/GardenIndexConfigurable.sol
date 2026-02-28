@@ -112,8 +112,9 @@ library GardenIndexConfigurable {
                     if (eas.length > 0 && bytes(eas[0]).length > 0) essayAuthor = eas[0];
                 } catch {}
 
+                string memory gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
                 html = string.concat(html, '<br><br>');
-                html = string.concat(html, 'With an <a href="./essay">introductory essay</a>');
+                html = string.concat(html, 'With an <a href="', gardenUrl, '/essay">introductory essay</a>');
                 if (bytes(essayAuthor).length > 0) {
                     html = string.concat(html, ' by ', essayAuthor);
                 }
