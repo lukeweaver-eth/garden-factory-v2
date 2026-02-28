@@ -42,15 +42,21 @@ exports.handler = async (event) => {
 
     const garden = new ethers.Contract(
       checksumAddress,
-      ['function html() external view returns (string)', 'function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, bytes)'],
+      ['function html() external view returns (string)', 'function render() external view returns (address)'],
       provider
     );
 
     let html;
 
     if (resource === 'essay') {
-      // Call the request function for the essay subroute
-      const [statusCode, , body] = await garden.request([resource], []);
+      // Get the renderer contract and call request on it
+      const rendererAddress = await garden.render();
+      const renderer = new ethers.Contract(
+        rendererAddress,
+        ['function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, bytes)'],
+        provider
+      );
+      const [statusCode, , body] = await renderer.request([resource], []);
       if (statusCode !== 200) {
         throw new Error('Essay not found');
       }
