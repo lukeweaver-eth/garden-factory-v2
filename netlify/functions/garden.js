@@ -56,7 +56,7 @@ exports.handler = async (event) => {
         ['function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, bytes)'],
         provider
       );
-      const [statusCode, , body] = await renderer.request([resource], []);
+      const [statusCode, body, headers] = await renderer.request([resource], []);
       if (statusCode !== 200) {
         throw new Error('Essay not found');
       }
