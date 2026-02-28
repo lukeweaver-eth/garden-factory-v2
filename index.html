@@ -150,6 +150,8 @@ textarea.essay-input::placeholder { color: rgba(0,0,0,0.3); }
    &#x2698;            &#x2698;         &#x2698;
 </pre>
     <br><h1>write an essay</h1><br>
+    <p style="opacity:0.7;line-height:1.5">Each garden has <strong>one introductory essay</strong> that introduces the collection. Select a garden below to write or update its introduction.</p><br>
+    <p style="opacity:0.7;line-height:1.5"><strong>Independent essays</strong> (no garden selected) can be added to gardens as sculptures using the "manage garden" panel.</p><br>
     <div id="essay-wallet" class="wallet-line"><a onclick="connectWallet()">connect wallet</a></div><br>
     <div>
       <div class="form-row"><label>garden</label><select class="garden-select" id="e-garden"><option value="">no garden — independent essay</option></select></div>
@@ -481,9 +483,11 @@ async function deployGarden(){
     const ev=receipt.events?.find(e=>e.event==='GardenPlanted');
     const ga=ev?.args?.garden,ea=ev?.args?.essay;
 
-    let m='\u2698 garden planted<br><br>garden: '+ga+'<br>';
-    if(ea)m+='essay: '+ea+'<br>';
-    m+='<br><a href="#/">\u2190 back to garden factory</a> · <a href="#/essay">write an essay \u2192</a> · <a href="#/manage">manage garden \u2192</a>';
+    const gardenUrl=window.location.origin+'/'+ga;
+    let m='\u2698 garden planted<br><br><a href="'+gardenUrl+'" target="_blank">view garden \u2192</a><br><br>';
+    m+='garden: <a href="'+CONFIG.EXPLORER+'/address/'+ga+'" target="_blank">'+ga+'</a><br>';
+    if(ea)m+='essay: <a href="'+CONFIG.EXPLORER+'/address/'+ea+'" target="_blank">'+ea+'</a><br>';
+    m+='<br><a href="#/">\u2190 back to garden factory</a> · <a href="#/essay">write introductory essay \u2192</a> · <a href="#/manage">manage garden \u2192</a>';
     showSt(st,m,'success');
     loadGardens();
   }catch(e){
@@ -505,7 +509,7 @@ async function loadUserGardens(){
       const entry=await factory.garden(i);
       if(entry[1].toLowerCase()===account.toLowerCase()){
         // Get essay address: garden → render (Web) → renderer (GardenRendererConfigurable) → essayContract
-        let essayAddr=ethers.constants.AddressZero;
+        let essayAddr=ethers.constants.AddressZero,modAddr=ethers.constants.AddressZero;
         try{
           const gardenContract=new ethers.Contract(entry[0],ABI.garden,rpc);
           const webAddr=await gardenContract.render();
@@ -517,15 +521,27 @@ async function loadUserGardens(){
               essayAddr=await rendererContract.essayContract();
             }
           }
+          // Get mod address
+          const gardenWithData=new ethers.Contract(entry[0],['function data() view returns (address)'],rpc);
+          modAddr=await gardenWithData.data();
         }catch(err){console.error('Error getting essay address:',err);}
-        evs.push({args:{garden:entry[0],gardener:entry[1],curatorName:entry[2],unicodeSymbol:entry[3],essay:essayAddr}});
+        evs.push({args:{garden:entry[0],gardener:entry[1],curatorName:entry[2],unicodeSymbol:entry[3],essay:essayAddr,mod:modAddr}});
       }
     }
     let opts='<option value="">no garden \u2014 independent essay</option>';
-    evs.forEach(ev=>{
+    // Fetch garden titles from mod contracts
+    for(const ev of evs){
       const n=ev.args.curatorName||'unnamed',s=ev.args.garden.substring(0,10)+'...';
-      opts+='<option value="'+ev.args.garden+'" data-essay="'+ev.args.essay+'">'+esc(n)+' ('+s+')</option>';
-    });
+      let gtitle='';
+      try{
+        if(ev.args.mod&&ev.args.mod!==ethers.constants.AddressZero){
+          const mod=new ethers.Contract(ev.args.mod,ABI.mod,rpc);
+          gtitle=await mod.gardenTitle().catch(()=>'');
+        }
+      }catch(e){}
+      const label=gtitle?esc(gtitle)+' — '+esc(n)+' ('+s+')':esc(n)+' ('+s+')';
+      opts+='<option value="'+ev.args.garden+'" data-essay="'+ev.args.essay+'">'+label+'</option>';
+    }
     sel.innerHTML=opts;
   }catch(e){console.error(e);sel.innerHTML='<option value="">no garden \u2014 independent essay</option>';}
 }
