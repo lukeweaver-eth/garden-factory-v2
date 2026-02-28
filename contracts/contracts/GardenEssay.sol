@@ -42,6 +42,6 @@ library GardenEssay {
             '" written by ', Essay(essayContract).authors()[0],
             ' was published as part of the contract ', collectionTerm, ': ', Sculpture(garden).title());
 
-        return GardenHTML.htmlConfigurable(result, Essay(essayContract).title(), description, mod.backgroundColor(), mod.textColor());
+        return GardenHTML.htmlConfigurable(result, Essay(essayContract).title(), description, mod.backgroundColor(), mod.textColor(), symbol);
     }
 }

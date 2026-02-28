@@ -219,7 +219,7 @@ library GardenIndexConfigurable {
 
         string memory description = string.concat(Sculpture(garden).title(), ' at ', LibString.toHexStringChecksummed(garden), '. Curated by ', mod.curatorName(), '.');
 
-        // Use configurable colors
-        return GardenHTML.htmlConfigurable(html, Sculpture(garden).title(), description, mod.backgroundColor(), mod.textColor());
+        // Use configurable colors and symbol
+        return GardenHTML.htmlConfigurable(html, Sculpture(garden).title(), description, mod.backgroundColor(), mod.textColor(), symbol);
     }
 }
