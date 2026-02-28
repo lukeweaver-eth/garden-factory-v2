@@ -113,7 +113,7 @@ library GardenIndexConfigurable {
                 } catch {}
 
                 html = string.concat(html, '<br><br>');
-                html = string.concat(html, 'With an <a href="/essay">introductory essay</a>');
+                html = string.concat(html, 'With an <a href="essay">introductory essay</a>');
                 if (bytes(essayAuthor).length > 0) {
                     html = string.concat(html, ' by ', essayAuthor);
                 }

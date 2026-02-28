@@ -1,11 +1,17 @@
 const { ethers } = require('ethers');
 
 exports.handler = async (event) => {
-  // Extract address from path: /0x123... or /.netlify/functions/garden/0x123...
-  let address = event.path.replace('/.netlify/functions/garden/', '').replace('/', '');
+  // Extract address and resource from path
+  // Patterns: /0x123... or /0x123.../essay or /.netlify/functions/garden/0x123...
+  let fullPath = event.path.replace('/.netlify/functions/garden/', '').replace(/^\//, '');
 
   // Handle trailing slashes
-  address = address.replace(/\/$/, '');
+  fullPath = fullPath.replace(/\/$/, '');
+
+  // Split into address and resource
+  const parts = fullPath.split('/');
+  const address = parts[0];
+  const resource = parts[1]; // 'essay' or undefined
 
   if (!address || !address.startsWith('0x')) {
     return {
@@ -36,11 +42,23 @@ exports.handler = async (event) => {
 
     const garden = new ethers.Contract(
       checksumAddress,
-      ['function html() external view returns (string)'],
+      ['function html() external view returns (string)', 'function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, bytes)'],
       provider
     );
 
-    const html = await garden.html();
+    let html;
+
+    if (resource === 'essay') {
+      // Call the request function for the essay subroute
+      const [statusCode, , body] = await garden.request([resource], []);
+      if (statusCode !== 200) {
+        throw new Error('Essay not found');
+      }
+      html = body;
+    } else {
+      // Default: render the garden index
+      html = await garden.html();
+    }
 
     return {
       statusCode: 200,
