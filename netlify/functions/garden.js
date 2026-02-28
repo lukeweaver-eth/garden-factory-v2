@@ -53,7 +53,7 @@ exports.handler = async (event) => {
       const rendererAddress = await garden.render();
       const renderer = new ethers.Contract(
         rendererAddress,
-        ['function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, bytes)'],
+        ['function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, tuple(string,string)[])'],
         provider
       );
       const [statusCode, body, headers] = await renderer.request([resource], []);
