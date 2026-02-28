@@ -17,9 +17,10 @@ library GardenEssay {
         string memory symbol = mod.unicodeSymbol();
         if (bytes(symbol).length == 0) symbol = unicode"⚘";
 
+        string memory gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
         result = string.concat(result,
             '<div class="c essay"><div class="w"><div class="s g">',
-                '<p><i>This text was published as part of the contract ', collectionTerm, ': <a href=".." style="display: block">', Sculpture(garden).title() ,'</a></i></p>',
+                '<p><i>This text was published as part of the contract ', collectionTerm, ': <a href="', gardenUrl, '" style="display: block">', Sculpture(garden).title() ,'</a></i></p>',
                 '<br><br><br>',
                 symbol,
                 '<br><br><br><br>',
@@ -31,10 +32,10 @@ library GardenEssay {
                 '<br><br><br>',
                 '<p><span class="a">', LibString.toHexStringChecksummed(garden),'</span></p>',
                 '<br><br>',
-                '<p><i>This text was published as part of the ', collectionTerm, ' <a href=".." style="display: block">', Sculpture(garden).title() ,'</a></i></p>',
+                '<p><i>This text was published as part of the ', collectionTerm, ' <a href="', gardenUrl, '" style="display: block">', Sculpture(garden).title() ,'</a></i></p>',
                 '<br>',
             '</div></div></div>',
-            '<div class="f"><a href=".." style="text-decoration: none;">', symbol, '</a></div>'
+            '<div class="f"><a href="', gardenUrl, '" style="text-decoration: none;">', symbol, '</a></div>'
         );
 
         string memory description = string.concat(
