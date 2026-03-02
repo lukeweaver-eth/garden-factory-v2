@@ -112,23 +112,10 @@ library GardenIndexConfigurable {
                     if (eas.length > 0 && bytes(eas[0]).length > 0) essayAuthor = eas[0];
                 } catch {}
 
-                // Check if garden has custom URL set
-                string memory gardenUrl;
-                try Sculpture(garden).urls() returns (string[] memory urls) {
-                    if (urls.length > 0 && bytes(urls[0]).length > 0) {
-                        // Custom URL set (e.g., "https://essay.garden")
-                        gardenUrl = urls[0];
-                    } else {
-                        // No custom URL → use factory.garden path
-                        gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
-                    }
-                } catch {
-                    // Fallback to factory.garden path
-                    gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
-                }
-
+                // Always use factory.garden path for essay link
+                string memory essayUrl = string.concat('/', LibString.toHexStringChecksummed(garden), '/essay');
                 html = string.concat(html, '<br><br>');
-                html = string.concat(html, 'With an <a href="', gardenUrl, '/essay">introductory essay</a>');
+                html = string.concat(html, 'With an <a href="', essayUrl, '">introductory essay</a>');
                 if (bytes(essayAuthor).length > 0) {
                     html = string.concat(html, ' by ', essayAuthor);
                 }
