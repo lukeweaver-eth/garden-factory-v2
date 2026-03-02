@@ -112,10 +112,9 @@ library GardenIndexConfigurable {
                     if (eas.length > 0 && bytes(eas[0]).length > 0) essayAuthor = eas[0];
                 } catch {}
 
-                // Always use factory.garden path for essay link
-                string memory essayUrl = string.concat('/', LibString.toHexStringChecksummed(garden), '/essay');
+                // Use relative path so it works on any domain
                 html = string.concat(html, '<br><br>');
-                html = string.concat(html, 'With an <a href="', essayUrl, '">introductory essay</a>');
+                html = string.concat(html, 'With an <a href="./essay">introductory essay</a>');
                 if (bytes(essayAuthor).length > 0) {
                     html = string.concat(html, ' by ', essayAuthor);
                 }

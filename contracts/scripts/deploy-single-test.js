@@ -4,7 +4,7 @@ async function main() {
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying test garden with account:", deployer.address);
 
-  const factoryAddr = "0x0B64C68a6Cdb4Ee4A526FcE0DC00C4bD973477db";
+  const factoryAddr = "0xEb19b65a3C63Be6001A2A91320FF4f85CbE12207";
   const factory = await hre.ethers.getContractAt("GardenFactory", factoryAddr);
 
   console.log("\n=== Deploying Test Garden ===\n");

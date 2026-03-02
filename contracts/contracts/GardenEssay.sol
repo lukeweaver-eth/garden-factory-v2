@@ -17,20 +17,8 @@ library GardenEssay {
         string memory symbol = mod.unicodeSymbol();
         if (bytes(symbol).length == 0) symbol = unicode"⚘";
 
-        // Check if garden has custom URL set
-        string memory gardenUrl;
-        try Sculpture(garden).urls() returns (string[] memory urls) {
-            if (urls.length > 0 && bytes(urls[0]).length > 0) {
-                // Custom URL set (e.g., "https://essay.garden")
-                gardenUrl = urls[0];
-            } else {
-                // No custom URL → use factory.garden path
-                gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
-            }
-        } catch {
-            // Fallback to factory.garden path
-            gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
-        }
+        // Use relative path so it works on any domain
+        string memory gardenUrl = "./";
 
         result = string.concat(result,
             '<div class="c essay"><div class="w"><div class="s g">',
