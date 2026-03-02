@@ -17,7 +17,21 @@ library GardenEssay {
         string memory symbol = mod.unicodeSymbol();
         if (bytes(symbol).length == 0) symbol = unicode"⚘";
 
-        string memory gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
+        // Check if garden has custom URL set
+        string memory gardenUrl;
+        try Sculpture(garden).urls() returns (string[] memory urls) {
+            if (urls.length > 0 && bytes(urls[0]).length > 0) {
+                // Custom URL set (e.g., "https://essay.garden")
+                gardenUrl = urls[0];
+            } else {
+                // No custom URL → use factory.garden path
+                gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
+            }
+        } catch {
+            // Fallback to factory.garden path
+            gardenUrl = string.concat('/', LibString.toHexStringChecksummed(garden));
+        }
+
         result = string.concat(result,
             '<div class="c essay"><div class="w"><div class="s g">',
                 '<p><i>This text was published as part of the contract ', collectionTerm, ': <a href="', gardenUrl, '" style="display: block">', Sculpture(garden).title() ,'</a></i></p>',
