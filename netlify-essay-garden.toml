@@ -1,0 +1,38 @@
+# Netlify configuration for essay.garden
+# This serves Luke Weaver's Essay Garden at the root domain
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+  command = "echo 'No build required - static site with serverless functions'"
+
+# Redirect root to Essay Garden
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/garden/0xC65D5dA9c392EF00C53Fe39DE130506760b2B25E"
+  status = 200
+
+# Redirect essay route
+[[redirects]]
+  from = "/essay"
+  to = "/.netlify/functions/garden/0xC65D5dA9c392EF00C53Fe39DE130506760b2B25E/essay"
+  status = 200
+
+# Allow other gardens to be accessed via /0x... format
+# This keeps factory.garden functionality available as fallback
+[[redirects]]
+  from = "/0x*"
+  to = "/.netlify/functions/garden/:splat"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    access-control-allow-origin = "*"
+    cache-control = "public, max-age=60"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Environment variables (set these in Netlify UI)
+# RPC_URL = "https://ethereum-sepolia.publicnode.com"
