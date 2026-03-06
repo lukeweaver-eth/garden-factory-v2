@@ -18,7 +18,7 @@ p { margin: 0; }
 a { color: inherit; text-decoration: underline; }
 .w { position: relative; min-height: 100vh; display: flex; align-items: center; padding: 10em 0; }
 .s { width: 100%; max-width: 860px; }
-.s:not(.g) a { max-width: 100%; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s:not(.g) a { max-width: 100%; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: baseline; }
 .f { position: fixed; bottom: 1em; right: 1.3em; z-index: 10; }
 .p { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-size: 1.4em; }
 .field { white-space: pre; margin: 0 auto; max-width: 100%; }
@@ -28,6 +28,10 @@ a { color: inherit; text-decoration: underline; }
 .form-row input, .form-row select { flex: 1; min-width: 0; background: transparent; border: none; border-bottom: 1px solid rgba(0,0,0,0.2); color: inherit; font: inherit; padding: 2px 0; outline: none; border-radius: 0; }
 .form-row input:focus { border-bottom-color: rgba(0,0,0,0.6); }
 .form-row input::placeholder { color: rgba(0,0,0,0.3); }
+.form-row textarea { flex: 1; min-width: 0; background: transparent; border: 1px solid rgba(0,0,0,0.15); color: inherit; font: inherit; padding: 0.5em; outline: none; resize: vertical; min-height: 6em; border-radius: 0; }
+.form-row textarea:focus { border-color: rgba(0,0,0,0.4); }
+.form-row textarea::placeholder { color: rgba(0,0,0,0.3); }
+.help-text { font-size: 0.85em; opacity: 0.5; margin-top: 0.3em; line-height: 1.4; }
 textarea.essay-input { width: 100%; min-height: 40vh; background: transparent; border: 1px solid rgba(0,0,0,0.15); color: inherit; font: inherit; padding: 1em; outline: none; resize: vertical; border-radius: 0; }
 textarea.essay-input:focus { border-color: rgba(0,0,0,0.4); }
 textarea.essay-input::placeholder { color: rgba(0,0,0,0.3); }
@@ -39,19 +43,21 @@ textarea.essay-input::placeholder { color: rgba(0,0,0,0.3); }
 .status-line.error { color: #ff6b6b; }
 .status-line.success { color: #69db7c; }
 .status-line a { color: inherit; }
-.preview-box { border: 1px solid rgba(0,0,0,0.15); padding: 2em; margin: 1.5em 0; min-height: 10em; }
-.preview-box h1 { font-size: 1.4em; font-weight: bold; margin-bottom: 0.5em; }
-.preview-box h2 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.4em; }
-.preview-box h3 { font-size: 1.1em; font-weight: bold; margin-bottom: 0.3em; }
-.preview-box p { margin-bottom: 0.8em; }
-.preview-box blockquote { border-left: 2px solid rgba(0,0,0,0.3); padding-left: 1em; margin: 0.8em 0; opacity: 0.8; }
-.preview-box ul, .preview-box ol { padding-left: 2em; margin: 0.5em 0; }
-.preview-box em { font-style: italic; }
-.preview-box strong { font-weight: bold; }
-.preview-box code { background: rgba(0,0,0,0.08); padding: 0.1em 0.3em; }
-.preview-box pre code { display: block; padding: 1em; margin: 0.5em 0; overflow-x: auto; background: rgba(0,0,0,0.05); }
-.preview-box a { color: inherit; }
-.preview-box hr { border: none; border-top: 1px solid rgba(0,0,0,0.2); margin: 1.5em 0; }
+.essay-wysiwyg { display: flex; flex-direction: column; gap: 1em; margin: 1em 0; }
+.essay-wysiwyg-input, .essay-wysiwyg-preview { width: 100%; min-height: 40vh; }
+.essay-wysiwyg-preview { border: 1px solid rgba(0,0,0,0.15); padding: 1em; overflow-y: auto; background: rgba(0,0,0,0.02); }
+.essay-wysiwyg-preview h1 { font-size: 1.4em; font-weight: bold; margin-bottom: 0.5em; }
+.essay-wysiwyg-preview h2 { font-size: 1.2em; font-weight: bold; margin-bottom: 0.4em; }
+.essay-wysiwyg-preview h3 { font-size: 1.1em; font-weight: bold; margin-bottom: 0.3em; }
+.essay-wysiwyg-preview p { margin-bottom: 0.8em; }
+.essay-wysiwyg-preview blockquote { border-left: 2px solid rgba(0,0,0,0.3); padding-left: 1em; margin: 0.8em 0; opacity: 0.8; }
+.essay-wysiwyg-preview ul, .essay-wysiwyg-preview ol { padding-left: 2em; margin: 0.5em 0; }
+.essay-wysiwyg-preview em { font-style: italic; }
+.essay-wysiwyg-preview strong { font-weight: bold; }
+.essay-wysiwyg-preview code { background: rgba(0,0,0,0.08); padding: 0.1em 0.3em; }
+.essay-wysiwyg-preview pre code { display: block; padding: 1em; margin: 0.5em 0; overflow-x: auto; background: rgba(0,0,0,0.05); }
+.essay-wysiwyg-preview a { color: inherit; }
+.essay-wysiwyg-preview hr { border: none; border-top: 1px solid rgba(0,0,0,0.2); margin: 1.5em 0; }
 .nav-links a { margin-right: 2em; }
 .wallet-line { opacity: 0.5; margin: 1em 0; }
 .wallet-line a { cursor: pointer; }
@@ -64,7 +70,11 @@ textarea.essay-input::placeholder { color: rgba(0,0,0,0.3); }
 .garden-select { background: #ffffff; border: 1px solid rgba(0,0,0,0.2); color: inherit; font: inherit; padding: 2px 4px; flex: 1; border-radius: 0; }
 .garden-select option { background: #ffffff; color: #000000; }
 .separator { opacity: 0.15; margin: 2em 0; }
-@media (max-width: 600px) { .form-row { flex-direction: column; } .form-row label { min-width: auto; margin-bottom: 0.2em; } }
+.garden-symbol { position: relative; text-decoration: none; cursor: pointer; }
+.garden-tooltip { font-size: 0.8em; color: black; background: white; border: 1px solid black; padding: 0.5em; width: 220px; pointer-events: none; z-index: 1000; position: absolute; }
+.garden-tooltip.r { text-align: right; }
+.garden-tooltip .address { overflow-wrap: break-word; }
+@media (max-width: 600px) { .form-row { flex-direction: column; } .form-row label { min-width: auto; margin-bottom: 0.2em; } .help-text { margin-left: 0 !important; } }
 </style>
 </head>
 <body>
@@ -119,19 +129,30 @@ textarea.essay-input::placeholder { color: rgba(0,0,0,0.3); }
     <div id="plant-wallet" class="wallet-line"><a onclick="connectWallet()">connect wallet</a></div><br>
     <div>
       <div class="form-row"><label>garden title</label><input type="text" id="f-gardenTitle" placeholder="My Essay Garden"></div>
+      <p class="help-text" style="margin-left:14ch">Name of your garden collection</p>
       <div class="form-row"><label>curator name</label><input type="text" id="f-curatorName" placeholder="your name"></div>
+      <p class="help-text" style="margin-left:14ch">Your name or pseudonym (required)</p>
       <div class="form-row"><label>curator url</label><input type="url" id="f-curatorUrl" placeholder="https://yoursite.com"></div>
+      <p class="help-text" style="margin-left:14ch">Link to your website or profile</p>
       <div class="separator">&#x2014;</div>
       <div class="form-row"><label>symbol</label><input type="text" id="f-symbol" value="&#x2698;" maxlength="1"></div>
+      <p class="help-text" style="margin-left:14ch">Single character/emoji representing your garden</p>
       <div class="form-row"><label>term</label><input type="text" id="f-collectionTerm" value="show" placeholder="show, anthology, collection"></div>
+      <p class="help-text" style="margin-left:14ch">What you call your collection (e.g., "show", "anthology", "archive")</p>
       <div class="form-row"><label>background</label><div class="color-input-wrap"><input type="text" id="f-bgColor" value="#ffffff"><input type="color" id="f-bgColorPicker" value="#ffffff"></div></div>
+      <p class="help-text" style="margin-left:14ch">Background color (hex code)</p>
       <div class="form-row"><label>text color</label><div class="color-input-wrap"><input type="text" id="f-textColor" value="#000000"><input type="color" id="f-textColorPicker" value="#000000"></div></div>
+      <p class="help-text" style="margin-left:14ch">Text color (hex code)</p>
       <div class="separator">&#x2014;</div>
       <div class="form-row"><label>thank you</label><input type="text" id="f-thankNames" placeholder="names, comma separated"></div>
+      <p class="help-text" style="margin-left:14ch">People to acknowledge (comma-separated names)</p>
       <div class="form-row"><label>thank urls</label><input type="text" id="f-thankUrls" placeholder="urls, comma separated"></div>
+      <p class="help-text" style="margin-left:14ch">URLs for acknowledged people (must match names count)</p>
       <div class="separator">&#x2014;</div>
-      <div class="form-row"><label>exhibition text</label><input type="text" id="f-exhibitionText" placeholder="introduction to your garden"></div>
+      <div class="form-row" style="align-items:flex-start"><label style="padding-top:0.5em">exhibition text</label><textarea id="f-exhibitionText" placeholder="Introduction to your garden. Supports line breaks."></textarea></div>
+      <p class="help-text" style="margin-left:14ch">Description of your garden (displayed on garden page)</p>
       <div class="form-row"><label>garden urls</label><input type="text" id="f-gardenUrls" placeholder="urls where garden is accessible"></div>
+      <p class="help-text" style="margin-left:14ch">Optional: Custom domain URLs where your garden is accessible</p>
       <br><br>
       <div id="plant-preview" style="opacity:0.5"></div><br>
       <button class="btn" id="plant-btn" onclick="deployGarden()" disabled>plant a garden &#x2698; 0.01 ETH</button>
@@ -160,20 +181,21 @@ textarea.essay-input::placeholder { color: rgba(0,0,0,0.3); }
       <div class="form-row"><label>title</label><input type="text" id="e-title" placeholder="essay title"></div>
       <div class="form-row"><label>author</label><input type="text" id="e-author" placeholder="author name"></div>
       <div class="separator">&#x2014;</div>
-      <br><p style="opacity:0.5">write in markdown</p><br>
-      <textarea class="essay-input" id="e-markdown" placeholder="# Your Essay
+      <br>
+      <button class="btn" id="essay-deploy-btn" onclick="deployEssay()" disabled>deploy essay</button>
+      <a href="#/" class="btn" style="margin-left:1em">back</a>
+      <div id="essay-status"></div>
+      <br><br>
+      <p style="opacity:0.5">write in markdown — preview updates as you type</p><br>
+      <div class="essay-wysiwyg">
+        <textarea class="essay-input essay-wysiwyg-input" id="e-markdown" placeholder="# Your Essay
 
 Write in markdown. Supports **bold**, *italic*, [links](url), headings, blockquotes, lists.
 
 Converted to HTML and stored on-chain via SSTORE2."></textarea>
-      <br>
+        <div class="essay-wysiwyg-preview" id="essay-preview"><span style="opacity:0.4">Preview will appear here...</span></div>
+      </div>
       <div id="essay-size" style="opacity:0.5;font-size:0.9em;margin:0.5em 0">0 bytes / 24,000 byte threshold</div>
-      <br>
-      <button class="btn" id="preview-btn" onclick="togglePreview()">preview</button>
-      <button class="btn" id="essay-deploy-btn" onclick="deployEssay()" disabled>deploy essay</button>
-      <a href="#/" class="btn" style="margin-left:1em">back</a>
-      <div id="essay-preview" class="preview-box hidden"></div>
-      <div id="essay-status"></div>
       <br><br>
     </div>
   </div></div>
@@ -222,9 +244,9 @@ Converted to HTML and stored on-chain via SSTORE2."></textarea>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script>
-const CONFIG={FACTORY_ADDRESS:'0xEb19b65a3C63Be6001A2A91320FF4f85CbE12207',CHAIN_ID:11155111,CHAIN_NAME:'Sepolia',RPC_URL:'https://ethereum-sepolia.publicnode.com',EXPLORER:'https://sepolia.etherscan.io'};
+const CONFIG={FACTORY_ADDRESS:'0x556875432a224b2d6eC96Ae54F1772c229180Ed7',CHAIN_ID:1,CHAIN_NAME:'Ethereum',RPC_URL:'https://ethereum.publicnode.com',EXPLORER:'https://etherscan.io'};
 const ABI={factory:['function createGarden(string,string,string,string[],string[],string,string,string[],string,string,string) external payable returns (address)','function deployEssay() external returns (address)','function getGardens() view returns (address[])','function gardenCount() view returns (uint256)','function garden(uint256) view returns (address,address,string,string,uint256)','function totalGardeners() view returns (uint256)','event GardenPlanted(address indexed garden,address indexed gardener,string curatorName,string unicodeSymbol,address mod,address essay,address renderer,address web)','event EssayDeployed(address indexed essay,address indexed author)'],mod:['function curatorName() view returns (string)','function gardenTitle() view returns (string)','function unicodeSymbol() view returns (string)','function collectionTerm() view returns (string)'],essay:['function setTitle(string) external','function setAuthor(string) external','function setTextPt1(string) external','function setTextPt2(string) external','function publish(string,string,string) external','function publishLarge(string,string,string,string) external','function owner() view returns (address)'],garden:['function getSculptures() view returns (address[])','function setSculptures(address[]) external','function owner() view returns (address)','function render() view returns (address)'],web:['function renderer() view returns (address)'],renderer:['function essayContract() view returns (address)'],sculpture:['function title() view returns (string)','function authors() view returns (string[])','function urls() view returns (string[])','function text() view returns (string)']};
-let provider=null,signer=null,account=null,gardens=[];
+let provider=null,signer=null,account=null,gardens=[],gardenEntries=[];
 const ensCache={};
 
 function route(){const h=window.location.hash||'#/';['view-index','view-plant','view-essay','view-manage'].forEach(v=>document.getElementById(v).classList.add('hidden'));if(h.startsWith('#/plant')){document.getElementById('view-plant').classList.remove('hidden');updateWalletDisplay();}else if(h.startsWith('#/essay')){document.getElementById('view-essay').classList.remove('hidden');updateWalletDisplay();if(account)loadUserGardens();}else if(h.startsWith('#/manage')){document.getElementById('view-manage').classList.remove('hidden');updateWalletDisplay();if(account)loadManageGardens();}else{document.getElementById('view-index').classList.remove('hidden');}window.scrollTo(0,0);}
@@ -249,30 +271,109 @@ async function resolveENS(addr){
   }
 }
 
+// Attach tooltip event listeners to garden symbols
+function attachGardenTooltips(){
+  const symbols=document.querySelectorAll('.garden-symbol');
+  symbols.forEach(el=>{
+    el.addEventListener('mouseenter',showGardenTooltip);
+    el.addEventListener('mouseleave',hideGardenTooltip);
+  });
+  // Remove tooltips on window resize or scroll
+  window.addEventListener('resize',hideGardenTooltip);
+  document.querySelectorAll('.garden pre').forEach(el=>el.addEventListener('scroll',hideGardenTooltip));
+}
+
+async function showGardenTooltip(e){
+  hideGardenTooltip();
+  const gardenIndex=parseInt(e.target.dataset.gardenIndex);
+  if(isNaN(gardenIndex)||!gardens[gardenIndex])return;
+
+  const g=gardens[gardenIndex];
+  const tooltip=document.createElement('div');
+  tooltip.classList.add('garden-tooltip');
+  tooltip.id='garden-tooltip-active';
+  tooltip.innerHTML='Loading...';
+
+  // Position tooltip
+  const rect=e.target.getBoundingClientRect();
+  const scrollTop=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;
+  const scrollLeft=window.pageXOffset||document.documentElement.scrollLeft||document.body.scrollLeft||0;
+  tooltip.style.top=rect.top+scrollTop+e.target.clientHeight+'px';
+  const leftPos=rect.left+scrollLeft;
+  tooltip.style.left=leftPos>window.innerWidth-250?leftPos-220+'px':leftPos+'px';
+  if(leftPos>window.innerWidth-250)tooltip.classList.add('r');
+
+  document.body.appendChild(tooltip);
+
+  // Load gardener info with ENS
+  try{
+    const gardenerDisplay=await resolveENS(g.gardener);
+    const timestamp=gardenEntries[gardenIndex]?gardenEntries[gardenIndex][4]:null;
+    let timeStr='';
+    if(timestamp){
+      const date=new Date(timestamp.toNumber()*1000);
+      const month=new Intl.DateTimeFormat('en-US',{month:'long'}).format(date);
+      const day=date.getDate();
+      const year=date.getFullYear();
+      let hours=date.getHours();
+      const minutes=date.getMinutes().toString().padStart(2,'0');
+      const amPm=hours>=12?'pm':'am';
+      hours=hours%12||12;
+      timeStr=`${month} ${day}, ${year}, ${hours}:${minutes}${amPm}`;
+    }
+
+    const activeTooltip=document.getElementById('garden-tooltip-active');
+    if(activeTooltip){
+      activeTooltip.innerHTML=`<span class="address">${gardenerDisplay}</span><br>${timeStr||''}`;
+    }
+  }catch(err){
+    const activeTooltip=document.getElementById('garden-tooltip-active');
+    if(activeTooltip){
+      activeTooltip.innerHTML=`<span class="address">${g.gardener}</span>`;
+    }
+  }
+}
+
+function hideGardenTooltip(){
+  document.querySelectorAll('.garden-tooltip').forEach(el=>el.remove());
+}
+
 // Build a scattered symbol field from garden symbols
-function symbolField(gardenSymbols){
+function symbolField(gardenSymbols,altSeed){
   const cols=40,rows=5;
-  let grid=[];for(let r=0;r<rows;r++)grid.push(new Array(cols).fill(' '));
+  let grid=[];for(let r=0;r<rows;r++)grid.push(new Array(cols).fill(null));
   // If no gardens yet, scatter some default ⚘
   const syms=gardenSymbols.length?gardenSymbols:['\u2698','\u2698','\u2698','\u2698','\u2698','\u2698','\u2698','\u2698'];
-  let seed=syms.length*2654435761;
+  let seed=altSeed?(syms.length*1337):(syms.length*2654435761);
   function rng(){seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff;}
-  // Place each garden's symbol
+  // Place each garden's symbol - store garden index
   const maxPlace=Math.min(syms.length,Math.floor(cols*rows*0.15));
   for(let i=0;i<maxPlace;i++){
     let r,c,tries=0;
-    do{r=Math.floor(rng()*rows);c=Math.floor(rng()*cols);tries++;}while(grid[r][c]!==' '&&tries<50);
-    if(grid[r][c]===' ')grid[r][c]=syms[i];
+    do{r=Math.floor(rng()*rows);c=Math.floor(rng()*cols);tries++;}while(grid[r][c]!==null&&tries<50);
+    if(grid[r][c]===null)grid[r][c]=i;
   }
   // If more gardens than grid can show, fill remaining spots
   if(syms.length>maxPlace){
     for(let i=maxPlace;i<syms.length&&i<cols*rows*0.2;i++){
       let r,c,tries=0;
-      do{r=Math.floor(rng()*rows);c=Math.floor(rng()*cols);tries++;}while(grid[r][c]!==' '&&tries<50);
-      if(grid[r][c]===' ')grid[r][c]=syms[i];
+      do{r=Math.floor(rng()*rows);c=Math.floor(rng()*cols);tries++;}while(grid[r][c]!==null&&tries<50);
+      if(grid[r][c]===null)grid[r][c]=i;
     }
   }
-  return '<pre class="garden">'+grid.map(r=>r.join('')).join('\n')+'</pre>';
+  // Render grid with interactive elements when gardens exist
+  if(gardens.length){
+    const lines=grid.map(row=>row.map(cell=>{
+      if(cell===null)return ' ';
+      const g=gardens[cell];
+      if(!g)return ' ';
+      const sym=syms[cell];
+      return '<a href="#" class="garden-symbol" data-garden-index="'+cell+'" onclick="return false;">'+sym+'</a>';
+    }).join('')).join('\n');
+    return '<pre class="garden">'+lines+'</pre>';
+  }else{
+    return '<pre class="garden">'+grid.map(r=>r.map(c=>c===null?' ':syms[c]).join('')).join('\n')+'</pre>';
+  }
 }
 
 async function loadGardens(){
@@ -289,7 +390,7 @@ async function loadGardens(){
     for(let i=0;i<count;i++){
       gardenPromises.push(factory.garden(i));
     }
-    const gardenEntries=await Promise.all(gardenPromises);
+    gardenEntries=await Promise.all(gardenPromises);
 
     // Fetch mod addresses in parallel
     const modPromises=gardenEntries.map(entry=>{
@@ -312,11 +413,14 @@ async function loadGardens(){
 
     // Build scattered symbol fields from actual garden symbols
     const syms=gardens.map(g=>g.unicodeSymbol||'\u2698');
-    document.getElementById('symbol-field-top').innerHTML=symbolField(syms);
-    // Second field uses reversed order for different pattern
-    const syms2=syms.slice().reverse();
-    let seed2=syms2.length*1337;
-    document.getElementById('symbol-field-bottom').innerHTML=symbolField(syms2);
+    document.getElementById('symbol-field-top').innerHTML=symbolField(syms,false);
+    // Second field uses same order but different seed for different pattern
+    document.getElementById('symbol-field-bottom').innerHTML=symbolField(syms,true);
+
+    // Add tooltip event listeners to garden symbols
+    if(gardens.length){
+      attachGardenTooltips();
+    }
 
     // Gardener count
     let gc=0;
@@ -429,7 +533,7 @@ async function loadGardens(){
 
       // Text (exhibition text or default description)
       if(exhibitionText){
-        detail+='<p style="opacity:0.6"><i>'+esc(exhibitionText)+'</i></p>';
+        detail+='<p style="opacity:0.6"><i>'+exhibitionText+'</i></p>';
       }else{
         detail+='<p style="opacity:0.6"><i>A contract '+esc(term)+' curated by '+esc(name)+'</i></p>';
       }
@@ -547,20 +651,45 @@ async function loadUserGardens(){
 }
 document.getElementById('e-garden').addEventListener('change',function(){const o=this.options[this.selectedIndex],a=o?.dataset?.essay||'';document.getElementById('e-essayAddr').value=a;const row=document.getElementById('essay-addr-row');a?row.classList.remove('hidden'):row.classList.add('hidden');});
 
-function togglePreview(){const p=document.getElementById('essay-preview'),b=document.getElementById('preview-btn'),md=document.getElementById('e-markdown').value;if(p.classList.contains('hidden')){p.innerHTML=md.trim()?marked.parse(md,{breaks:true,gfm:true}):'<span style="opacity:0.4">nothing to preview</span>';p.classList.remove('hidden');b.textContent='hide preview';}else{p.classList.add('hidden');b.textContent='preview';}}
+function updateEssayPreviewAndSize(){
+  const md=document.getElementById('e-markdown').value;
+  const previewEl=document.getElementById('essay-preview');
+  const sizeEl=document.getElementById('essay-size');
 
-function updateEssaySize(){
-  const md=document.getElementById('e-markdown').value,el=document.getElementById('essay-size');
-  if(!md.trim()){el.innerHTML='0 bytes / 24,000 byte threshold';el.style.opacity='0.5';el.style.color='';return;}
-  const html=marked.parse(md,{breaks:true,gfm:true}),bytes=new TextEncoder().encode(html),len=bytes.length;
+  // Update preview
+  if(!md.trim()){
+    previewEl.innerHTML='<span style="opacity:0.4">Preview will appear here...</span>';
+  } else {
+    previewEl.innerHTML=marked.parse(md,{breaks:true,gfm:true});
+  }
+
+  // Update size
+  if(!md.trim()){
+    sizeEl.innerHTML='0 bytes / 24,000 byte threshold';
+    sizeEl.style.opacity='0.5';
+    sizeEl.style.color='';
+    return;
+  }
+  const html=marked.parse(md,{breaks:true,gfm:true});
+  const bytes=new TextEncoder().encode(html);
+  const len=bytes.length;
   const fmt=len.toLocaleString();
   let msg=fmt+' bytes / 24,000 byte threshold';
-  if(len>24000){msg+=' <span style="color:#ff6b6b">(large essay, 2-part storage)</span>';el.style.opacity='1';el.style.color='#ff6b6b';}
-  else if(len>20000){msg+=' <span style="color:#ffa500">(approaching limit)</span>';el.style.opacity='1';el.style.color='#ffa500';}
-  else{el.style.opacity='0.5';el.style.color='';}
-  el.innerHTML=msg;
+  if(len>24000){
+    msg+=' <span style="color:#ff6b6b">(large essay, 2-part storage)</span>';
+    sizeEl.style.opacity='1';
+    sizeEl.style.color='#ff6b6b';
+  } else if(len>20000){
+    msg+=' <span style="color:#ffa500">(approaching limit)</span>';
+    sizeEl.style.opacity='1';
+    sizeEl.style.color='#ffa500';
+  } else {
+    sizeEl.style.opacity='0.5';
+    sizeEl.style.color='';
+  }
+  sizeEl.innerHTML=msg;
 }
-document.getElementById('e-markdown').addEventListener('input',updateEssaySize);
+document.getElementById('e-markdown').addEventListener('input',updateEssayPreviewAndSize);
 
 async function deployEssay(){if(!signer){connectWallet();return;}const btn=document.getElementById('essay-deploy-btn'),st=document.getElementById('essay-status');btn.disabled=true;try{const ga=document.getElementById('e-garden').value;let ea=val('e-essayAddr');if(!ea){showSt(st,'deploying essay contract...');const factory=new ethers.Contract(CONFIG.FACTORY_ADDRESS,ABI.factory,signer);const tx=await factory.deployEssay();showSt(st,'confirming...');const receipt=await tx.wait();const ev=receipt.events?.find(e=>e.event==='EssayDeployed');ea=ev?.args?.essay;if(!ea)throw new Error('EssayDeployed event not found');}if(!val('e-title')){showSt(st,'title is required','error');btn.disabled=false;return;}if(!val('e-author')){showSt(st,'author is required','error');btn.disabled=false;return;}const md=document.getElementById('e-markdown').value;if(!md.trim()){showSt(st,'content is required','error');btn.disabled=false;return;}const html=marked.parse(md,{breaks:true,gfm:true}),bytes=new TextEncoder().encode(html),essay=new ethers.Contract(ea,ABI.essay,signer);let owner;try{owner=await essay.owner();}catch(e){showSt(st,'could not verify ownership','error');btn.disabled=false;return;}if(owner.toLowerCase()!==account.toLowerCase()){showSt(st,'you do not own this essay contract','error');btn.disabled=false;return;}const LIM=24000;if(bytes.length<=LIM){showSt(st,'publishing essay on-chain...');await(await essay.publish(val('e-title'),val('e-author'),html)).wait();}else{const sp=findSplit(html,LIM);showSt(st,'publishing large essay on-chain (2 parts)...');await(await essay.publishLarge(val('e-title'),val('e-author'),html.substring(0,sp),html.substring(sp))).wait();}let m='\u2698 essay published on-chain<br><br>';if(ga){const essayUrl=window.location.origin+'/'+ga+'/essay';m+='<a href="'+essayUrl+'" target="_blank">view essay \u2192</a><br><br>';m+='garden: '+ga+'<br>';m+='essay: '+ea+'<br>';}else{m+='<a href="#/manage">add to garden \u2192</a><br><br>';m+='essay: '+ea+'<br>';}showSt(st,m,'success');}catch(e){console.error(e);showSt(st,'failed: '+(e.reason||e.message),'error');}finally{btn.disabled=false;}}
 function findSplit(s,max){const enc=new TextEncoder();let p=max;while(enc.encode(s.substring(0,p)).length>max&&p>0)p--;const lc=s.lastIndexOf('>',p),lo=s.lastIndexOf('<',p);if(lo>lc&&lc>0)return lo;return p;}
@@ -714,13 +843,49 @@ async function removeSculpture(gardenAddr,index){
   }catch(e){console.error(e);showSt(st,'failed: '+(e.reason||e.message),'error');}
 }
 
-// Color sync
+// Color sync and preview
 document.getElementById('f-bgColorPicker').addEventListener('input',function(){document.getElementById('f-bgColor').value=this.value;upPreview();});
 document.getElementById('f-bgColor').addEventListener('input',function(){try{document.getElementById('f-bgColorPicker').value=this.value;}catch(e){}upPreview();});
 document.getElementById('f-textColorPicker').addEventListener('input',function(){document.getElementById('f-textColor').value=this.value;upPreview();});
 document.getElementById('f-textColor').addEventListener('input',function(){try{document.getElementById('f-textColorPicker').value=this.value;}catch(e){}upPreview();});
-function upPreview(){const n=val('f-curatorName')||'curator',t=val('f-collectionTerm')||'show',s=val('f-symbol')||'\u2698',gt=val('f-gardenTitle');document.getElementById('plant-preview').innerHTML=s+'  '+(gt?esc(gt)+' — ':'')+'A contract '+esc(t)+' by '+esc(n);}
-['f-gardenTitle','f-curatorName','f-collectionTerm','f-symbol'].forEach(id=>document.getElementById(id).addEventListener('input',upPreview));
+
+function upPreview(){
+  const n=val('f-curatorName')||'your name',
+        t=val('f-collectionTerm')||'show',
+        s=val('f-symbol')||'\u2698',
+        gt=val('f-gardenTitle')||'Garden Title',
+        et=document.getElementById('f-exhibitionText').value.trim()||'Your exhibition text will appear here.',
+        cu=val('f-curatorUrl')||'',
+        bg=val('f-bgColor')||'#ffffff',
+        tc=val('f-textColor')||'#000000',
+        tn=split('f-thankNames'),
+        tu=split('f-thankUrls');
+
+  let preview='<div style="border:1px solid rgba(0,0,0,0.1);padding:2em;background:'+esc(bg)+';color:'+esc(tc)+';line-height:1.6">';
+  preview+='<p style="margin:0 0 0.5em 0">'+s+'</p>';
+  preview+='<p style="margin:0 0 1em 0"><strong>'+esc(gt)+'</strong></p>';
+  preview+='<p style="margin:0 0 1em 0">A contract '+esc(t)+' curated by ';
+  if(cu)preview+='<a href="'+esc(cu)+'" style="color:inherit">'+esc(n)+'</a>';
+  else preview+=esc(n);
+  preview+='</p>';
+  preview+='<p style="margin:0 0 1em 0;white-space:pre-wrap">'+esc(et)+'</p>';
+  if(tn.length){
+    preview+='<p style="margin:0;font-size:0.9em;opacity:0.7">with special thanks to ';
+    for(let i=0;i<tn.length;i++){
+      if(tu[i])preview+='<a href="'+esc(tu[i])+'" style="color:inherit">'+esc(tn[i])+'</a>';
+      else preview+=esc(tn[i]);
+      if(i<tn.length-1)preview+=', ';
+    }
+    preview+='</p>';
+  }
+  preview+='<p style="margin:1.5em 0 0 0;font-size:0.85em;opacity:0.5">Preview of your garden</p>';
+  preview+='</div>';
+
+  document.getElementById('plant-preview').innerHTML=preview;
+  document.getElementById('plant-preview').style.opacity='1';
+}
+
+['f-gardenTitle','f-curatorName','f-collectionTerm','f-symbol','f-curatorUrl','f-exhibitionText','f-thankNames','f-thankUrls'].forEach(id=>document.getElementById(id).addEventListener('input',upPreview));
 upPreview();
 
 function val(id){return document.getElementById(id).value.trim();}
