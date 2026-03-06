@@ -486,6 +486,11 @@ async function loadGardens(){
         gtitle=results[1]||'';
         gardenUrls=results[2];
         exhibitionText=results[3];
+
+        // Fallback: if no title from Mod, try title() from Sculpture interface
+        if(!gtitle){
+          gtitle=await gardenContract.title().catch(()=>'');
+        }
       }catch(e){}
       return{gtitle,term,gardenUrls,exhibitionText};
     });
