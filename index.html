@@ -523,9 +523,22 @@ async function loadGardens(){
       // Addresses (full garden address)
       detail+='<p style="font-size:0.9em"><span id="'+entryId+'-addr">'+g.garden+'</span></p>';
 
-      // URLs from garden contract (if specified, these are the canonical URLs)
-      // Otherwise show "view garden" link for factory-deployed gardens
-      if(gardenUrls.length>0){
+      // For factory-deployed gardens, show "view garden" link
+      // Also show any custom URLs from the garden contract
+      if(g.gardener&&g.gardener!==ethers.constants.AddressZero){
+        detail+='<p style="opacity:0.7;font-size:0.9em;margin-top:0.3em">';
+        // Always show "view garden" link for factory-deployed gardens
+        const gardenUrl=window.location.origin+'/'+g.garden;
+        detail+='<a href="'+gardenUrl+'" target="_blank" rel="noopener noreferrer">view garden \u2192</a><br>';
+        // Also show custom URLs if specified
+        for(let i=0;i<gardenUrls.length;i++){
+          if(gardenUrls[i]){
+            detail+='<a href="'+esc(gardenUrls[i])+'" target="_blank" rel="noopener noreferrer">'+esc(gardenUrls[i])+'</a><br>';
+          }
+        }
+        detail+='</p>';
+      }else if(gardenUrls.length>0){
+        // Non-factory gardens (like WCSG) - only show custom URLs
         detail+='<p style="opacity:0.7;font-size:0.9em;margin-top:0.3em">';
         for(let i=0;i<gardenUrls.length;i++){
           if(gardenUrls[i]){
@@ -533,10 +546,6 @@ async function loadGardens(){
           }
         }
         detail+='</p>';
-      }else if(g.gardener&&g.gardener!==ethers.constants.AddressZero){
-        // Factory-deployed garden with no custom URL - show "view garden" link
-        const gardenUrl=window.location.origin+'/'+g.garden;
-        detail+='<p style="opacity:0.7;font-size:0.9em;margin-top:0.3em"><a href="'+gardenUrl+'" target="_blank" rel="noopener noreferrer">view garden \u2192</a></p>';
       }
 
       detail+='<br>';
