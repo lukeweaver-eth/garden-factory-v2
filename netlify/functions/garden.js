@@ -1,17 +1,23 @@
 const { ethers } = require('ethers');
 
 exports.handler = async (event) => {
-  // Extract address and resource from path
-  // Patterns: /0x123... or /0x123.../essay or /.netlify/functions/garden/0x123...
-  let fullPath = event.path.replace('/.netlify/functions/garden/', '').replace(/^\//, '');
+  // Extract address and resource from query params or path
+  // Query params used for essay.garden rewrites: ?address=0x...&resource=essay
+  // Path used for factory.garden: /0x123... or /0x123.../essay
+  let address, resource;
 
-  // Handle trailing slashes
-  fullPath = fullPath.replace(/\/$/, '');
-
-  // Split into address and resource
-  const parts = fullPath.split('/');
-  const address = parts[0];
-  const resource = parts[1]; // 'essay' or undefined
+  // Check query parameters first (for rewrites)
+  if (event.queryStringParameters?.address) {
+    address = event.queryStringParameters.address;
+    resource = event.queryStringParameters.resource; // 'essay' or undefined
+  } else {
+    // Fall back to path parsing
+    let fullPath = event.path.replace('/.netlify/functions/garden/', '').replace(/^\//, '');
+    fullPath = fullPath.replace(/\/$/, '');
+    const parts = fullPath.split('/');
+    address = parts[0];
+    resource = parts[1]; // 'essay' or undefined
+  }
 
   if (!address || !address.startsWith('0x')) {
     return {
@@ -37,7 +43,7 @@ exports.handler = async (event) => {
     const checksumAddress = ethers.getAddress(address);
 
     const provider = new ethers.JsonRpcProvider(
-      process.env.RPC_URL || 'https://ethereum-sepolia.publicnode.com'
+      process.env.RPC_URL || 'https://ethereum.publicnode.com'
     );
 
     const garden = new ethers.Contract(
@@ -48,15 +54,20 @@ exports.handler = async (event) => {
 
     let html;
 
+    // Get the Web contract address (which has the html() function)
+    const webAddress = await garden.render();
+    const web = new ethers.Contract(
+      webAddress,
+      [
+        'function html() external view returns (string)',
+        'function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, tuple(string,string)[])'
+      ],
+      provider
+    );
+
     if (resource === 'essay') {
-      // Get the renderer contract and call request on it
-      const rendererAddress = await garden.render();
-      const renderer = new ethers.Contract(
-        rendererAddress,
-        ['function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, tuple(string,string)[])'],
-        provider
-      );
-      const result = await renderer.request([resource], []);
+      // Call request on the Web contract for essay
+      const result = await web.request([resource], []);
       const statusCode = Number(result[0]);
       const body = result[1];
       if (statusCode !== 200) {
@@ -64,8 +75,19 @@ exports.handler = async (event) => {
       }
       html = body;
     } else {
-      // Default: render the garden index
-      html = await garden.html();
+      // Default: render the garden index via Web contract
+      html = await web.html();
+    }
+
+    // Inject CSS fix for inline-block link alignment issue
+    // Use multiple selectors to ensure it catches all link styles
+    const cssFix = '<style>a,a:link,a:visited,a:hover,a:active,p a,div a,.essay a{vertical-align:baseline!important;display:inline!important;}</style>';
+    if (html.includes('</head>')) {
+      html = html.replace('</head>', cssFix + '</head>');
+    } else if (html.includes('<body')) {
+      html = html.replace('<body', cssFix + '<body');
+    } else {
+      html = cssFix + html;
     }
 
     return {
