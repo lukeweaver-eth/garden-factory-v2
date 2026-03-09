@@ -43,7 +43,7 @@ exports.handler = async (event) => {
     const checksumAddress = ethers.getAddress(address);
 
     const provider = new ethers.JsonRpcProvider(
-      process.env.RPC_URL || 'https://ethereum.publicnode.com'
+      process.env.RPC_URL || 'https://ethereum-sepolia.publicnode.com'
     );
 
     const garden = new ethers.Contract(
