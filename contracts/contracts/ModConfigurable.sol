@@ -67,11 +67,60 @@ contract ModConfigurable is Ownable {
         exhibitionText = SSTORE2.write(bytes(_text));
     }
 
+    /// @notice Returns exhibition text formatted as HTML
+    /// @dev Converts plain text to HTML by wrapping paragraphs in <p> tags
+    ///      Paragraphs are separated by double newlines (\n\n)
     function text() public view returns (string memory) {
         if (exhibitionText == address(0)) {
             return "";
         }
-        return string(SSTORE2.read(exhibitionText));
+
+        string memory plainText = string(SSTORE2.read(exhibitionText));
+        bytes memory textBytes = bytes(plainText);
+
+        if (textBytes.length == 0) {
+            return "";
+        }
+
+        // Convert plain text to HTML with <p> tags
+        // Split on \n\n and wrap each paragraph in <p></p>
+        string memory result = "";
+        uint256 start = 0;
+        bool inParagraph = false;
+
+        for (uint256 i = 0; i < textBytes.length; i++) {
+            // Check for \n\n (paragraph break)
+            if (i < textBytes.length - 1 && textBytes[i] == 0x0a && textBytes[i + 1] == 0x0a) {
+                // Found double newline - close paragraph if open
+                if (inParagraph && i > start) {
+                    result = string.concat(result, "<p>", _substring(plainText, start, i), "</p>\n<br>\n");
+                    inParagraph = false;
+                }
+                start = i + 2;
+                i++; // Skip the second newline
+            } else if (!inParagraph && textBytes[i] != 0x0a && textBytes[i] != 0x20) {
+                // Start of a new paragraph (non-whitespace character)
+                inParagraph = true;
+                start = i;
+            }
+        }
+
+        // Close final paragraph if still open
+        if (inParagraph && textBytes.length > start) {
+            result = string.concat(result, "<p>", _substring(plainText, start, textBytes.length), "</p>");
+        }
+
+        return result;
+    }
+
+    /// @notice Extract substring from bytes
+    function _substring(string memory str, uint256 startIndex, uint256 endIndex) private pure returns (string memory) {
+        bytes memory strBytes = bytes(str);
+        bytes memory result = new bytes(endIndex - startIndex);
+        for (uint256 i = startIndex; i < endIndex; i++) {
+            result[i - startIndex] = strBytes[i];
+        }
+        return string(result);
     }
 
     // Exhibition URLs

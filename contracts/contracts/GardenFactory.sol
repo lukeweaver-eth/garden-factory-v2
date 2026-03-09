@@ -311,18 +311,18 @@ contract GardenFactory is Sculpture, Ownable, IWeb {
         return addrs;
     }
 
-    /// @notice Factory description
+    /// @notice Factory description (HTML formatted to match WCSG convention)
     function text() external pure returns (string memory) {
         return string.concat(
-            "I invite you into the garden of many gardens \u2013 an open ground for all to plant.\n\n",
-            "The World Computer Sculpture Garden (2024) established a pattern that opened the infinite garden of Ethereum up to everyone.\n\n",
-            "This pattern inspired the contract show Intimate Systems in 2026, for which I wrote the introductory essay, 'The Garden', that planted the seed of the idea for the Garden Factory.\n\n",
-            "This garden of gardens is an attempt to expand the invitation offered by fff and the artists of the World Computer Sculpture Garden to anyone willing to plant a garden and place a sculpture.\n\n",
-            "The proliferation of large language models has eliminated the moat to the garden. All that is required to plant a sculpture is to ask for and deploy a contract that fits the sculpture interface.\n\n",
-            "This Garden Factory is an encouragement to become a gardener.\n\n",
-            "Exhibit your collections. Own your own anthology. Create a public program sketchbook.\n\n",
-            "Get your hands dirty. Dig into the medium. Plant a garden, then fill that garden with durable living sculptures \u2013 long-running programs on the world computer.\n\n",
-            "Over time, as people use the Garden Factory to plant their gardens, the information rendered here will change, block by block, year by year."
+            "<p>I invite you into the garden of many gardens \u2013 an open ground for all to plant.</p>\n<br>\n",
+            "<p>The World Computer Sculpture Garden (2024) established a pattern that opened the infinite garden of Ethereum up to everyone.</p>\n<br>\n",
+            "<p>This pattern inspired the contract show Intimate Systems in 2026, for which I wrote the introductory essay, 'The Garden', that planted the seed of the idea for the Garden Factory.</p>\n<br>\n",
+            "<p>This garden of gardens is an attempt to expand the invitation offered by fff and the artists of the World Computer Sculpture Garden to anyone willing to plant a garden and place a sculpture.</p>\n<br>\n",
+            "<p>The proliferation of large language models has eliminated the moat to the garden. All that is required to plant a sculpture is to ask for and deploy a contract that fits the sculpture interface.</p>\n<br>\n",
+            "<p>This Garden Factory is an encouragement to become a gardener.</p>\n<br>\n",
+            "<p>Exhibit your collections. Own your own anthology. Create a public program sketchbook.</p>\n<br>\n",
+            "<p>Get your hands dirty. Dig into the medium. Plant a garden, then fill that garden with durable living sculptures \u2013 long-running programs on the world computer.</p>\n<br>\n",
+            "<p>Over time, as people use the Garden Factory to plant their gardens, the information rendered here will change, block by block, year by year.</p>"
         );
     }
 

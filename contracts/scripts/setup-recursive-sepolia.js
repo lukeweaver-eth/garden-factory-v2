@@ -16,9 +16,9 @@ async function main() {
 
   console.log("GardenFactory:", factoryAddress);
 
-  // Use WCSG Sepolia test garden (deployed via deploy-wcsg-sepolia.js)
-  const wcsgAddress = "0x0A4FD8dDF76C09849ffDbAC65035Ad23a79caA20";
-  console.log("WCSG Sepolia:", wcsgAddress);
+  // Use real WCSG Sepolia deployment
+  const wcsgAddress = "0x6CDb67AeA00347f82Aa1cc926D8B006E9385c83B";
+  console.log("WCSG Sepolia (real):", wcsgAddress);
   console.log();
 
   // Verify factory Sculpture interface
