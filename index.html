@@ -521,12 +521,18 @@ async function loadGardens(){
       detail+='<p>'+esc(name)+'</p><br>';
 
       // Addresses (full garden address) with view link
-      // Special case: World Computer Sculpture Garden
-      const gardenUrl=g.garden.toLowerCase()==='0x2a362ff002f7ce62d3468509dd2a4a9f5a8ebbb0'
-        ?'https://worldcomputersculpture.garden'
-        :window.location.origin+'/'+g.garden;
+      // Only show "view garden" link for gardens deployed by the factory (not for factory itself or external gardens)
       detail+='<p style="font-size:0.9em"><span id="'+entryId+'-addr">'+g.garden+'</span></p>';
-      detail+='<p style="font-size:0.9em;opacity:0.7;margin-top:0.3em"><a href="'+gardenUrl+'" target="_blank" rel="noopener noreferrer">view garden \u2192</a></p><br>';
+
+      // Check if this is a factory-deployed garden (has mod address and is not the factory itself)
+      const isFactoryGarden=g.mod!==ethers.constants.AddressZero&&g.garden.toLowerCase()!==CONFIG.FACTORY_ADDRESS.toLowerCase();
+
+      if(isFactoryGarden){
+        const gardenUrl=window.location.origin+'/'+g.garden;
+        detail+='<p style="font-size:0.9em;opacity:0.7;margin-top:0.3em"><a href="'+gardenUrl+'" target="_blank" rel="noopener noreferrer">view garden \u2192</a></p>';
+      }
+
+      detail+='<br>';
 
       // URLs from garden contract
       if(gardenUrls.length>0){

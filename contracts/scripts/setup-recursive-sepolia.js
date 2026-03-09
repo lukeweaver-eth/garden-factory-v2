@@ -36,6 +36,14 @@ async function main() {
   // Check current garden count
   const currentCount = await factory.gardenCount();
   console.log("Current garden count:", currentCount.toString());
+
+  if (currentCount > 0) {
+    console.log("Current gardens:");
+    for (let i = 0; i < currentCount; i++) {
+      const g = await factory.garden(i);
+      console.log(`  ${i}: ${g.unicodeSymbol} ${g.curatorName} - ${g.gardenAddr}`);
+    }
+  }
   console.log();
 
   // Step 1: Add factory to itself
