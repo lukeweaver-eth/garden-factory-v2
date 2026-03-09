@@ -524,6 +524,7 @@ async function loadGardens(){
       detail+='<p style="font-size:0.9em"><span id="'+entryId+'-addr">'+g.garden+'</span></p>';
 
       // URLs from garden contract (if specified, these are the canonical URLs)
+      // Otherwise show "view garden" link for factory-deployed gardens
       if(gardenUrls.length>0){
         detail+='<p style="opacity:0.7;font-size:0.9em;margin-top:0.3em">';
         for(let i=0;i<gardenUrls.length;i++){
@@ -532,6 +533,10 @@ async function loadGardens(){
           }
         }
         detail+='</p>';
+      }else if(g.gardener&&g.gardener!==ethers.constants.AddressZero){
+        // Factory-deployed garden with no custom URL - show "view garden" link
+        const gardenUrl=window.location.origin+'/'+g.garden;
+        detail+='<p style="opacity:0.7;font-size:0.9em;margin-top:0.3em"><a href="'+gardenUrl+'" target="_blank" rel="noopener noreferrer">view garden \u2192</a></p>';
       }
 
       detail+='<br>';

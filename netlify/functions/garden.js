@@ -48,26 +48,18 @@ exports.handler = async (event) => {
 
     const garden = new ethers.Contract(
       checksumAddress,
-      ['function html() external view returns (string)', 'function render() external view returns (address)'],
+      [
+        'function html() external view returns (string)',
+        'function request(string[] memory resource, tuple(string,string)[] memory params) external view returns (uint256, string, tuple(string,string)[] memory)'
+      ],
       provider
     );
 
     let html;
 
-    // Get the Web contract address (which has the html() function)
-    const webAddress = await garden.render();
-    const web = new ethers.Contract(
-      webAddress,
-      [
-        'function html() external view returns (string)',
-        'function request(string[] resource, tuple(string,string)[]) external view returns (uint256, string, tuple(string,string)[])'
-      ],
-      provider
-    );
-
     if (resource === 'essay') {
-      // Call request on the Web contract for essay
-      const result = await web.request([resource], []);
+      // Call request for essay route
+      const result = await garden.request([resource], []);
       const statusCode = Number(result[0]);
       const body = result[1];
       if (statusCode !== 200) {
@@ -75,8 +67,8 @@ exports.handler = async (event) => {
       }
       html = body;
     } else {
-      // Default: render the garden index via Web contract
-      html = await web.html();
+      // Default: render the garden index
+      html = await garden.html();
     }
 
     // Inject CSS fix for inline-block link alignment issue
