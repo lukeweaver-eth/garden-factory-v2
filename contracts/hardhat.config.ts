@@ -2,43 +2,34 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-deploy";
 import "@nomicfoundation/hardhat-verify";
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import * as envEnc from "@chainlink/env-enc";
+import * as dotenv from "dotenv";
+import * as path from "path";
 
-// Load .env from the Garden root (two levels up from contracts/)
-const envPath = resolve(__dirname, "../../.env");
-let privateKey = "";
-let etherscanApiKey = "";
-let sepoliaRpc = "https://ethereum-sepolia.publicnode.com";
-let mainnetRpc = "https://ethereum.publicnode.com";
-
+// Load environment variables
+// Try plain .env first (for testing)
+dotenv.config();
+// Then try encrypted env (for mainnet)
 try {
-  const envContent = readFileSync(envPath, "utf8");
+  envEnc.config();
+} catch {
+  // Encrypted env not available, that's fine
+}
 
-  // Strip surrounding quotes from a .env value (handles "value" or 'value')
-  const strip = (s: string) => s.trim().replace(/^['"]|['"]$/g, "");
+let privateKey = process.env.PRIVATE_KEY || "";
+let etherscanApiKey = process.env.ETHERSCAN_API_KEY || "";
+let sepoliaRpc = process.env.SEPOLIA_RPC_URL || "https://ethereum-sepolia.publicnode.com";
+let mainnetRpc = process.env.MAINNET_RPC_URL || "https://ethereum.publicnode.com";
 
-  const pkMatch = envContent.match(/^PRIVATE_KEY=(.+)$/m);
-  if (pkMatch) {
-    const parsed = strip(pkMatch[1]);
-    const hex = parsed.startsWith("0x") ? parsed.slice(2) : parsed;
-    if (hex.length === 64) {
-      privateKey = "0x" + hex;
-    } else {
-      console.warn(`Warning: PRIVATE_KEY has ${hex.length} hex chars (expected 64 / 32 bytes). Skipping.`);
-    }
+// Validate private key format
+if (privateKey) {
+  const hex = privateKey.startsWith("0x") ? privateKey.slice(2) : privateKey;
+  if (hex.length === 64) {
+    privateKey = "0x" + hex;
+  } else {
+    console.warn(`Warning: PRIVATE_KEY has ${hex.length} hex chars (expected 64 / 32 bytes). Ignoring.`);
+    privateKey = "";
   }
-
-  const apiMatch = envContent.match(/^ETHERSCAN_API_KEY=(.+)$/m);
-  if (apiMatch) etherscanApiKey = strip(apiMatch[1]);
-
-  const sepoliaMatch = envContent.match(/^SEPOLIA_RPC_URL=(.+)$/m);
-  if (sepoliaMatch) sepoliaRpc = strip(sepoliaMatch[1]);
-
-  const mainnetMatch = envContent.match(/^MAINNET_RPC_URL=(.+)$/m);
-  if (mainnetMatch) mainnetRpc = strip(mainnetMatch[1]);
-} catch (e) {
-  console.warn("Warning: Could not load .env file from", envPath);
 }
 
 console.log("Private key:", privateKey ? `${privateKey.substring(0, 6)}...` : "NOT FOUND");

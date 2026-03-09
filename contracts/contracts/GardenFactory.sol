@@ -166,10 +166,11 @@ contract GardenFactory is Sculpture, Ownable, IWeb {
         require(garden != address(0), "Invalid garden address");
 
         // Try to read curator name from Sculpture interface
+        // Convention: last author = curator (follows WCSG pattern)
         string memory curatorName = "Unknown";
         try Sculpture(garden).authors() returns (string[] memory authors) {
-            if (authors.length > 0 && bytes(authors[0]).length > 0) {
-                curatorName = authors[0];
+            if (authors.length > 0 && bytes(authors[authors.length - 1]).length > 0) {
+                curatorName = authors[authors.length - 1];
             }
         } catch {}
 
@@ -200,10 +201,11 @@ contract GardenFactory is Sculpture, Ownable, IWeb {
             require(gardens[i] != address(0), "Invalid garden address");
 
             // Try to read curator name from Sculpture interface
+            // Convention: last author = curator (follows WCSG pattern)
             string memory curatorName = "Unknown";
             try Sculpture(gardens[i]).authors() returns (string[] memory authors) {
-                if (authors.length > 0 && bytes(authors[0]).length > 0) {
-                    curatorName = authors[0];
+                if (authors.length > 0 && bytes(authors[authors.length - 1]).length > 0) {
+                    curatorName = authors[authors.length - 1];
                 }
             } catch {}
 
@@ -287,12 +289,15 @@ contract GardenFactory is Sculpture, Ownable, IWeb {
         return "Garden Factory";
     }
 
-    /// @notice All gardeners (curator names of each planted garden)
+    /// @notice All gardeners (curator names of each planted garden) + Luke Weaver as curator
+    ///         Last author = curator (follows WCSG convention)
     function authors() external view returns (string[] memory) {
-        string[] memory names = new string[](_gardens.length);
+        string[] memory names = new string[](_gardens.length + 1);
         for (uint256 i = 0; i < _gardens.length; i++) {
             names[i] = _gardens[i].curatorName;
         }
+        // Curator as last author (WCSG convention)
+        names[_gardens.length] = "Luke Weaver";
         return names;
     }
 
